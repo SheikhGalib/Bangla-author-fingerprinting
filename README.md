@@ -5,7 +5,7 @@ CSE 4122 — Natural Language Processing Laboratory
 
 | | |
 |---|---|
-| **Abu Daud Sharif** | Roll 2107002 |
+| **Mohammad Abu Daud Sharif** | Roll 2107002 |
 | **Sheikh Md. Galib Mahim** | Roll 2107020 |
 | Section A, Lab Group A1 · Year 4, Term 1 · Session 2024-25 | |
 
