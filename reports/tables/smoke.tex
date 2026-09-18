@@ -1,0 +1,18 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{llcc}
+\toprule
+Model & Feature family & Accuracy (95\% CI) & Macro-F1 \\
+\midrule
+SVM stylo+w2v & combined & 0.916 \;[0.889, 0.941] & 0.915 \\
+SVM all stylometric & stylo & 0.911 \;[0.884, 0.936] & 0.911 \\
+SVM w2v-mean & emb & 0.782 \;[0.745, 0.820] & 0.776 \\
+SVM w2v-sif & emb & 0.682 \;[0.641, 0.727] & 0.672 \\
+\midrule
+Chance & --- & 0.333 & 0.333 \\
+\bottomrule
+\end{tabular}
+\caption{cap}
+\label{tab:smoke}
+\end{table}

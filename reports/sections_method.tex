@@ -1,0 +1,407 @@
+% ===========================================================================
+% Sections 1-6: motivation, corpus, features, representations, paradigms,
+% experimental protocol.  Results and discussion live in sections_results.tex.
+% ===========================================================================
+
+\section{Introduction}
+
+Authorship attribution asks: given an unseen passage, which author from a
+closed candidate set most likely wrote it, judged by \emph{how} something is
+written rather than \emph{what} it says.  Bangla literature spans stylistically
+distinct classical and modern voices, yet computational stylometry for Bangla
+remains comparatively underexplored, and per-author corpora are small.
+
+This project builds a multi-author Bangla stylometric pipeline and uses it to
+answer three questions the proposal set out:
+
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Paradigm.} Does a \emph{generative} attributor --- one language
+        model per author, attribute to the lowest perplexity --- beat or lose to
+        a \emph{discriminative} one trained directly to separate the authors?
+  \item \textbf{Representation.} In a small-corpus regime, do \emph{pretrained}
+        embeddings or embeddings \emph{trained from scratch} on the author
+        corpus better isolate stylistic signal from topical content?
+  \item \textbf{Interpretability.} Which feature families actually drive the
+        decisions, and can a single prediction be audited rather than taken on
+        faith?
+\end{enumerate}
+
+A fourth question emerged during the work and turned out to matter more than
+any of them, so it is stated up front rather than buried in the results.
+
+\begin{keybox}[title=The result that governs every other number in this report]
+Splitting the corpus by \emph{passage} gives \randomSplitAcc{} accuracy.
+Splitting the same corpus by \emph{work} --- so that no book has passages on
+both sides --- gives \workSplitAcc{}.  The same model, the same features, the
+same text: \textbf{\leakGap{} of apparent accuracy was topic leakage}, a
+classifier recognising a novel's proper nouns and being scored as though it had
+recognised a style.
+
+Every number reported here is from the work-disjoint split.  Comparisons with
+published Bangla attribution accuracies should be read with this in mind.
+\end{keybox}
+
+\subsection{What Bangla brings to the problem}
+
+Two properties of the language shape the whole design.
+
+\textbf{Diglossia.}  Bangla prose of this period is written in one of two
+registers.  \bn{সাধু} (\emph{sadhu}, literary) uses long verb and pronoun forms
+--- \bn{হইল}, \bn{করিয়া}, \bn{তাহার}.  \bn{চলিত} (\emph{chalit}, colloquial)
+uses their contracted counterparts --- \bn{হল}, \bn{করে}, \bn{তার}.  The choice
+is authorial and largely stable within a writer, so a single scalar --- the
+sadhu-to-chalit marker ratio --- carries real attribution signal and is
+directly interpretable.  It is used as an explicit feature (§\ref{sec:features})
+and it is the first column to read in the style-fingerprint figure.
+
+\textbf{Suffixal morphology.}  Case and tense are marked by suffixes
+(\bn{-এর}, \bn{-কে}, \bn{-িয়াছিলেন}).  A character $n$-gram model therefore
+sees inside the word and can pick up the register difference between
+\bn{করিয়াছিলেন} and \bn{করেছিলেন} without either form having been observed
+whole --- which is why the generative side of this study uses character models
+as its primary configuration.
+
+% ===========================================================================
+\section{Corpus construction}
+\label{sec:corpus}
+
+The proposal commits to documenting corpus construction \emph{as part of the
+methodology, not as a black box}.  This section is that documentation.
+
+\subsection{Source and licensing}
+
+Text comes from Bengali Wikisource (\url{https://bn.wikisource.org}), which
+hosts community-transcribed public-domain works.  Every author in the study
+died more than sixty years before this project, so the texts are out of
+copyright; Wikisource's transcriptions are CC BY-SA 4.0.
+
+\subsection{Getting usable text out of Wikisource}
+
+Three facts about the site determined the crawler's design, and each one cost a
+rewrite to discover.
+
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Chapter pages contain no text.}  A main-namespace page is a
+        transclusion directive, \verb|<pages index="Book.pdf" from=149 to=156/>|.
+        The prose lives in the \bn{পাতা:} (\texttt{Page:}) namespace, one wiki
+        page per scanned page.
+  \item \textbf{\texttt{Page:} pages carry a proofreading level.}
+        \verb|<pagequality level="N">| runs from 0 (no text) to 4 (validated).
+        \textbf{Level 1 is raw, uncorrected OCR}, and for Bangla that OCR is
+        frequently mangled into Devanagari look-alikes --- visually similar
+        glyphs from a different Unicode block.  Only level $\geq 3$ is admitted.
+        This is the single most important quality control in the pipeline.
+  \item \textbf{\texttt{Page:} pages batch fifty at a time} through
+        \texttt{prop=revisions}, roughly fifty times cheaper than rendering each
+        chapter, which matters because the anonymous API rate limit returns
+        HTTP 429 within a handful of requests otherwise.
+\end{enumerate}
+
+Every API response is cached on disk, so the corpus behind the reported numbers
+can be rebuilt byte-for-byte and an interrupted crawl resumes for free.
+
+\subsection{Cleaning}
+
+After extraction, each line is kept only if it is at least 30 characters long
+and at least 88\,\% of its non-space characters lie in the Bangla Unicode block
+(U+0980--U+09FF).  That single rule removes four different problems at once:
+running headers, page numbers, English epigraphs, and the residue of bad OCR
+(whose Devanagari look-alikes are, by definition, outside the Bangla block).
+
+It also has a side effect worth naming, because it changed the shape of the
+study: verse is dropped.  Poetry lines are short, so a book of poems survives
+the filter with almost no text.  The resulting corpus is therefore
+\textbf{prose only}, which is the correct control anyway --- comparing a poet's
+verse against a novelist's prose would measure genre, not authorship.
+
+\subsection{Passages}
+
+Cleaned text is cut into \textbf{passages} of ${\sim}\meanPassageTokens{}$
+tokens on sentence boundaries: long enough for sentence-length statistics to
+mean anything, short enough to yield several hundred independent samples per
+author.  Near-duplicates are removed with an 8-gram shingle-overlap test, which
+matters because Wikisource hosts multiple editions of the same novel.
+
+Every passage records the work it came from.  That label is what makes
+§\ref{sec:protocol} possible.
+
+\subsection{Who is in, and who is not}
+
+An author is admitted only with enough passages \emph{and} at least three
+distinct works.  The second criterion is the binding one: a one-book author
+cannot take part in a work-disjoint split at all, since every passage of theirs
+would land in the same split.
+
+\begin{center}
+\small
+\input{tables/corpus_stats}
+\end{center}
+
+Three candidates were crawled and then excluded, and it is worth saying which:
+Swami Vivekananda (too few passages after filtering), Haraprasad Shastri and
+Pramatha Chaudhuri (one qualifying work each).  Haraprasad Shastri is the
+instructive case.  Wikisource lists \bn{বৌদ্ধগান ও দোহা} under his name, but
+that is his celebrated \emph{edition} of the Charyapada --- 10th-century Old
+Bengali, not his prose.  A Wikisource author page links everything a person is
+associated with, including what they edited, and admitting that volume would
+have given his ``style'' a thousand-year-old voice.  It is excluded by name.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{figures/corpus_overview.png}
+  \caption{The balanced corpus: passages per author, works per author, and the
+  passage-length distribution.  Balancing walks each author's works
+  round-robin, so an author is never reduced to a single book by the
+  down-sampling.}
+\end{figure}
+
+% ===========================================================================
+\section{Feature engineering}
+\label{sec:features}
+
+Four families, each a scikit-learn transformer so that the ablations in
+§\ref{sec:results} are a matter of swapping blocks rather than rewriting code.
+
+\subsection{Function words}
+
+Relative frequency, per thousand tokens, of every item in a curated
+closed-class lexicon: pronouns, postpositions, conjunctions, particles,
+determiners, adverbs and quantifiers, listed in \emph{both} registers.
+
+Using a fixed lexicon rather than the corpus's own top-$N$ word list is
+deliberate.  A corpus-derived list would quietly admit topic words --- a
+character's name is frequent in the novel they appear in --- and would inflate
+accuracy for exactly the reason §\ref{sec:protocol} exists to prevent.
+
+\subsection{Structural statistics}
+
+Twenty-nine scalars: the sentence-length distribution (mean, standard
+deviation, skew, median, IQR, range), word length, lexical richness
+(type--token ratio, hapax and \emph{dis legomena} rates, Yule's $K$),
+punctuation rates broken out by mark, conjunct-consonant density --- and the
+sadhu/chalit register ratio described in §1.1, which is the most interpretable
+single number in the feature set.
+
+\subsection{Character $n$-grams}
+
+TF--IDF over character 2--4-grams with sub-linear term frequency.  Cheap,
+language-independent, and the strongest single family in most attribution
+literature.  For a suffixally inflected language they are especially apt, for
+the reason given in §1.1.
+
+\subsection{POS $n$-grams, and the tagger they required}
+\label{sec:tagger}
+
+The proposal calls for POS $n$-grams ``from a Bangla tagger''.  There is no
+usable off-the-shelf option:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \texttt{stanza} ships only character language models for Bengali, no
+        POS model;
+  \item \texttt{bnlp-toolkit} depends on \texttt{gensim}, which has no
+        Python 3.14 wheel and needs a C toolchain this machine lacks;
+  \item the only Universal Dependencies Bengali treebank,
+        \texttt{UD\_Bengali-BRU}, is \posSentences{} sentences and test-only ---
+        far too small to train on.
+\end{itemize}
+
+So the tagger was written for this project: a two-stage lexicon-plus-morphology
+tagger over a coarse tagset.  Closed classes (pronouns, postpositions,
+conjunctions, particles, determiners, interjections) are enumerable and are
+listed in both registers.  Open classes come from morphology --- Bangla's
+finite-verb inflection is highly regular (\bn{-িলেন}, \bn{-েছে}, \bn{-বেন},
+\bn{-িতেছিল}), and adjectives and adverbs have their own derivational suffixes
+(\bn{-ীয়}, \bn{-ময়}, \bn{-ভাবে}, \bn{-রূপে}).  Nominal case clitics are stripped
+before lookup.  Anything left over defaults to \texttt{NOUN}, the majority open
+class.
+
+It is validated on \texttt{UD\_Bengali-BRU} --- usable for evaluation precisely
+because it is too small to train on --- at \textbf{\posAcc{} token accuracy}
+over \posTokens{} tokens.  Three UD distinctions are deliberately not attempted
+and are folded in the gold before scoring:
+
+\begin{center}\small
+\begin{tabular}{llp{0.52\linewidth}}
+\toprule
+Fold & & Why \\
+\midrule
+\texttt{AUX} & $\rightarrow$ \texttt{VERB} & Bangla auxiliaries are ordinary
+verbs in ordinary verb forms; separating them needs syntax this tagger has
+none of. \\
+\texttt{PROPN} & $\rightarrow$ \texttt{NOUN} & Would need a gazetteer of
+19th-century Bangla literary names, which does not exist. \\
+\texttt{SCONJ} & $\rightarrow$ \texttt{CCONJ} & The stylometric quantity of
+interest is conjunction \emph{density}, not subtype. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Each fold discards information rather than inventing it.  The accuracy figure
+is reported so a reader can discount the POS features appropriately rather than
+take them on trust; §\ref{sec:results} shows what those features are worth in
+practice.
+
+% ===========================================================================
+\section{Representations: pretrained versus from scratch}
+\label{sec:embeddings}
+
+The proposal's representation-level question is put under otherwise identical
+conditions --- same split, same classifier, same evaluation.
+
+\paragraph{From scratch.}  Skip-gram with negative sampling, written directly
+in PyTorch (\texttt{gensim} being unavailable), 200 dimensions, window 5,
+8 negatives, Mikolov subsampling, a $3/4$-power noise distribution and a
+dynamic window radius.  It is fit on the \textbf{training split only}, so no
+test text reaches the representation.
+
+\paragraph{Pretrained.}  \texttt{csebuetnlp/banglabert}, frozen, mean-pooled
+over the last hidden layer.  Pretrained on orders of magnitude more text than
+this corpus --- but \emph{modern} Bangla, and pretrained for semantics.  The
+corpus here is 19th- and early-20th-century literary prose in a register the
+pretraining data barely contains.
+
+\paragraph{Pooling.}  Word vectors are pooled into passage vectors two ways.
+SIF weighting ($a/(a+p(w))$) damps frequent words, which helps semantic tasks.
+For a \emph{stylometric} task that is a genuine trade-off, because the frequent
+function words SIF damps are exactly what classical stylometry runs on.  Both
+poolings are reported rather than assumed.
+
+\paragraph{A direct diagnostic.}  Downstream accuracy conflates the
+representation with the classifier, so a second measurement is taken:
+silhouette score of the test passages under \emph{author} labels versus under
+\emph{individual work} labels, on the same vectors.  A representation that
+encodes style should separate authors at least as well as it separates books;
+one that mostly encodes topic separates books far better, because each book has
+its own subject matter.  The ratio is what the proposal's question actually
+turns on.
+
+% ===========================================================================
+\section{The two attribution paradigms}
+\label{sec:paradigms}
+
+\subsection{Generative}
+
+One language model per author, fit only on that author's training text.  A test
+passage is attributed to whichever author's model assigns it the highest
+average log-probability per token --- equivalently, the lowest perplexity.  The
+model never sees the other authors: it learns what this author's text looks
+like, not how they differ from anyone.
+
+Smoothing is interpolated Kneser--Ney, implemented for this project rather than
+imported.  Kneser--Ney rather than add-one or Witten--Bell because of its
+\emph{continuation} probability: the unigram fallback asks not ``how often did
+this token occur?'' but ``after how many distinct contexts did it occur?''.
+For stylometry that is exactly the useful question --- a token that is frequent
+but always in one fixed phrase is a topic artefact, whereas one appearing after
+many different contexts is a habit.  Writing it out also exposes the per-token
+log-probability breakdown that §\ref{sec:interp} uses to make the generative
+side auditable.
+
+Two configurations: character \CharOrder-grams and word \WordOrder-grams.
+
+\subsection{Discriminative}
+
+All authors' features go into one classifier trained to tell them apart.
+
+\emph{Linear SVM.}  Chosen over an RBF kernel for two reasons: it scales to the
+several-thousand-dimensional sparse feature space, and its coefficients read
+directly as per-feature evidence, which the interpretability requirement needs.
+Run over each feature family alone, over combinations, over each embedding
+regime, and over stylometric-plus-embedding concatenations.
+
+\emph{Fine-tuned BanglaBERT.}  The heaviest model in the comparison and the one
+carrying the most outside knowledge.  Fine-tuning ran on CPU --- no CUDA device
+was available --- at roughly $0.42$\,s per sample, which capped the budget at
+\FTEpochs{} epochs over \FTMaxLen{} sub-word tokens.  That constraint is stated
+rather than hidden: the fine-tuned score below is a
+\emph{compute-constrained} one, and §\ref{sec:limits} says what that does and
+does not license concluding.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=7mm and 9mm,
+    box/.style={draw=black!55, fill=panel, rounded corners=2pt, align=center,
+                minimum height=8mm, inner sep=4pt, font=\small},
+    lbl/.style={font=\scriptsize\itshape, color=accent},
+    arr/.style={-{Stealth[length=2mm]}, draw=black!70}]
+    \node[box] (ws) {Bengali Wikisource\\ \scriptsize proofread pages only};
+    \node[box, right=of ws] (corpus) {Work-labelled\\passages};
+    \node[box, right=of corpus] (split) {\textbf{Work-disjoint}\\split};
+    \node[box, above right=5mm and 12mm of split] (gen)
+        {Per-author\\Kneser--Ney LM};
+    \node[box, below right=5mm and 12mm of split] (disc)
+        {SVM / fine-tuned\\BanglaBERT};
+    \node[box, right=14mm of split, yshift=0] (out)
+        {Predicted author\\+ ranked evidence};
+    \draw[arr] (ws) -- (corpus);
+    \draw[arr] (corpus) -- (split);
+    \draw[arr] (split) -- (gen);
+    \draw[arr] (split) -- (disc);
+    \draw[arr] (gen) -- (out);
+    \draw[arr] (disc) -- (out);
+    \node[lbl, above=0.5mm of gen] {generative: lowest perplexity};
+    \node[lbl, below=0.5mm of disc] {discriminative: direct classification};
+\end{tikzpicture}
+\caption{The pipeline.  The work-disjoint split is drawn in the middle because
+it is load-bearing, not incidental: everything to its right is only meaningful
+because of it.}
+\end{figure}
+
+% ===========================================================================
+\section{Experimental protocol}
+\label{sec:protocol}
+
+\subsection{Work-disjoint splitting}
+
+Each of an author's books is assigned whole to exactly one of train,
+validation or test.  Because books are indivisible and differ wildly in length,
+hitting 60/15/25 exactly is impossible; assignment uses the
+largest-processing-time heuristic --- take an author's works biggest-first and
+give each to whichever split is currently furthest below its quota.  Taking the
+big books first is what makes it work: a small book arriving last can fine-tune
+a bin, whereas a big one can only overshoot it.
+
+Realised: \trainFrac{} train (\nTrain{} passages), \valFrac{} validation
+(\nVal{}), \testFrac{} test (\nTest{}).  The invariant is asserted rather than
+assumed --- an explicit check confirms no work and no passage appears in two
+splits, and it is run as part of the notebook rather than as a one-off.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\linewidth]{figures/split_composition.png}
+  \caption{Split composition per author.  Every author appears in all three
+  splits, and no book is shared between any two of them.}
+\end{figure}
+
+\subsection{Measuring what the discipline costs}
+
+Rather than assert that work-disjoint splitting matters, it is measured.  The
+same model was trained twice on the same passages --- once on the work-disjoint
+split, once on a naive stratified random split.
+
+\begin{center}
+\small
+\begin{tabular}{lc}
+\toprule
+Split & Test accuracy \\
+\midrule
+Random, at the passage level (leaky) & \randomSplitAcc{} \\
+Work-disjoint (used throughout this report) & \workSplitAcc{} \\
+\midrule
+\textbf{Inflation attributable to topic leakage} & \textbf{$+$\leakGapAbs{}} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The leaky number is close to ceiling.  It is also close to meaningless: it
+mostly measures whether the model can recognise which novel a passage came
+from.
+
+\subsection{Metrics}
+
+Accuracy and macro-$F_1$, with 95\,\% percentile bootstrap intervals over test
+passages (2\,000 resamples) so that single numbers carry error bars, plus
+row-normalised confusion matrices --- because the proposal asks specifically
+about confusion between stylistically \emph{similar} authors, which a scalar
+cannot answer.  Chance is \chanceAcc{} for \nAuthors{} balanced classes.

@@ -1,0 +1,101 @@
+author,feature,weight,direction,reads as
+abanindranath,ch:তো ,0.07805699367273408,for,character n-gram “তো␣”
+abanindranath,ch: তো ,0.07295160883422641,for,character n-gram “␣তো␣”
+abanindranath,ch:ো ,0.06556915451530615,for,character n-gram “ো␣”
+abanindranath,ch:লো ,0.06485980553420877,for,character n-gram “লো␣”
+abanindranath,pos:PUNCT PUNCT,0.06284783484418545,for,POS pattern PUNCT–PUNCT
+abanindranath,pos:PUNCT PUNCT NOUN,0.05802981740669746,for,POS pattern PUNCT–PUNCT–NOUN
+abanindranath,ch: ',0.0559990330116217,for,character n-gram “␣'”
+abanindranath,pos:VERB PUNCT PUNCT,0.05459793538107304,for,POS pattern VERB–PUNCT–PUNCT
+abanindranath,ch:শিল্,0.05184221767502311,for,character n-gram “শিল্”
+abanindranath,ch:িল্প,0.05098741102158969,for,character n-gram “িল্প”
+abanindranath,ch: ত ,-0.059276464204254996,against,character n-gram “␣ত␣”
+abanindranath,ch:হি,-0.058215458360606175,against,character n-gram “হি”
+abanindranath,ch:াহ,-0.05087642678710786,against,character n-gram “াহ”
+abanindranath,ch:িয়া,-0.04817426762556899,against,character n-gram “িয়া”
+abanindranath,"ch:িল, ",-0.04700460962253446,against,"character n-gram “িল,␣”"
+abanindranath,"ch:িল,",-0.0460312551205181,against,"character n-gram “িল,”"
+abanindranath,ch:া',-0.045411707588464786,against,character n-gram “া'”
+abanindranath,ch: তা',-0.045304366721113154,against,character n-gram “␣তা'”
+abanindranath,ch:তা',-0.04529142425922168,against,character n-gram “তা'”
+abanindranath,ch:হিল,-0.04525367478081863,against,character n-gram “হিল”
+bankim,"ch:"" ",0.11477124414093047,for,"character n-gram “""␣”"
+bankim,"ch: """,0.10411486334173377,for,"character n-gram “␣""”"
+bankim,ch:ে',0.0919099208203453,for,character n-gram “ে'”
+bankim,ch:সন,0.08850289384741268,for,character n-gram “সন”
+bankim,pos:VERB PUNCT PUNCT,0.0804853030590402,for,POS pattern VERB–PUNCT–PUNCT
+bankim,ch:; ,0.07775409118921024,for,character n-gram “;␣”
+bankim,ch:সন্,0.07464040636491333,for,character n-gram “সন্”
+bankim,pos:PUNCT NOUN PUNCT,0.07186456627557282,for,POS pattern PUNCT–NOUN–PUNCT
+bankim,ch:া',0.07134643009136016,for,character n-gram “া'”
+bankim,pos:PUNCT PUNCT,0.070010443693764,for,POS pattern PUNCT–PUNCT
+bankim,ch:ছে ,-0.08393316461563777,against,character n-gram “ছে␣”
+bankim,pos:VERB NOUN PUNCT,-0.07759670060866028,against,POS pattern VERB–NOUN–PUNCT
+bankim,ch:াে,-0.07044321060104197,against,character n-gram “াে”
+bankim,ch:েম,-0.06761382301940702,against,character n-gram “েম”
+bankim,ch:রে ,-0.06627769773876052,against,character n-gram “রে␣”
+bankim,ch: কহ,-0.06492269530333157,against,character n-gram “␣কহ”
+bankim,ch:কহ,-0.06364125289567538,against,character n-gram “কহ”
+bankim,ch:কহিল,-0.06310317533354072,against,character n-gram “কহিল”
+bankim,ch:করে ,-0.061151587124660026,against,character n-gram “করে␣”
+bankim,ch:নো,-0.0607992655954464,against,character n-gram “নো”
+sarat,ch: ত ,0.08227516177950808,for,character n-gram “␣ত␣”
+sarat,ch:কহিল,0.07380838115461483,for,character n-gram “কহিল”
+sarat,ch: কহি,0.07331809132017063,for,character n-gram “␣কহি”
+sarat,ch: কহ,0.07317646274385751,for,character n-gram “␣কহ”
+sarat,ch:হিল,0.0727253272475348,for,character n-gram “হিল”
+sarat,ch:কহি,0.07193840587463286,for,character n-gram “কহি”
+sarat,ch:কহ,0.07180156097549698,for,character n-gram “কহ”
+sarat,"ch:িল,",0.0595480662823138,for,"character n-gram “িল,”"
+sarat,"ch:িল, ",0.059467957204504894,for,"character n-gram “িল,␣”"
+sarat,ch:ারতী,0.0574991349774769,for,character n-gram “ারতী”
+sarat,pos:PUNCT PUNCT NOUN,-0.06580051564829514,against,POS pattern PUNCT–PUNCT–NOUN
+sarat,pos:VERB PUNCT PUNCT,-0.061630911245864964,against,POS pattern VERB–PUNCT–PUNCT
+sarat,pos:PUNCT PUNCT,-0.05755496356585708,against,POS pattern PUNCT–PUNCT
+sarat,ch:আম,-0.05088343225768861,against,character n-gram “আম”
+sarat,ch:; ,-0.04861974344448211,against,character n-gram “;␣”
+sarat,ch:' ,-0.04805825896008107,against,character n-gram “'␣”
+sarat,ch: আম,-0.047958930423524435,against,character n-gram “␣আম”
+sarat,"ch:"" ",-0.047897722730439816,against,"character n-gram “""␣”"
+sarat,"ch: """,-0.046625703147652686,against,"character n-gram “␣""”"
+sarat,ch:এক ,-0.044640414146433195,against,character n-gram “এক␣”
+tagore,ch:াে,0.09019036143878824,for,character n-gram “াে”
+tagore,ch:নক,0.08856695689200318,for,character n-gram “নক”
+tagore,ch:নান,0.07519088109925019,for,character n-gram “নান”
+tagore,ch:াজে,0.07353130816407269,for,character n-gram “াজে”
+tagore,ch: ক্,0.07155739621405789,for,character n-gram “␣ক্”
+tagore,ch:িল ,0.06781018183451083,for,character n-gram “িল␣”
+tagore,ch:কোনো,0.06758394275993458,for,character n-gram “কোনো”
+tagore,ch:যদ,0.06665480678489813,for,character n-gram “যদ”
+tagore,ch: নান,0.06570278170855812,for,character n-gram “␣নান”
+tagore,ch: আন,0.0640422897896379,for,character n-gram “␣আন”
+tagore,ch:ও ,-0.09754248898798402,against,character n-gram “ও␣”
+tagore,ch:োন ,-0.08936559721876222,against,character n-gram “োন␣”
+tagore,ch:কোন ,-0.08887274575880957,against,character n-gram “কোন␣”
+tagore,ch:স ,-0.07724155034367933,against,character n-gram “স␣”
+tagore,ch: কি ,-0.07510673546943426,against,character n-gram “␣কি␣”
+tagore,ch:িম,-0.07381616692125063,against,character n-gram “িম”
+tagore,ch: আর ,-0.07321650527938689,against,character n-gram “␣আর␣”
+tagore,ch:নও,-0.06897624674051801,against,character n-gram “নও”
+tagore,ch:ৎক,-0.06808752156816397,against,character n-gram “ৎক”
+tagore,"ch:ল,",-0.06781133459053627,against,"character n-gram “ল,”"
+vidyasagar,"ch:য়া,",0.06656451307768455,for,"character n-gram “য়া,”"
+vidyasagar,"ch:়া,",0.06538075122957523,for,"character n-gram “়া,”"
+vidyasagar,"ch:়া, ",0.06405558541170944,for,"character n-gram “়া,␣”"
+vidyasagar,ch:ৎক,0.05949850532479313,for,character n-gram “ৎক”
+vidyasagar,ch:ঐ ,0.05095891798152888,for,character n-gram “ঐ␣”
+vidyasagar,ch: ঐ ,0.04929671376615664,for,character n-gram “␣ঐ␣”
+vidyasagar,pos:NOUN ADP PUNCT,0.04468845514531862,for,POS pattern NOUN–ADP–PUNCT
+vidyasagar,pos:ADP PUNCT,0.04163756510840877,for,POS pattern ADP–PUNCT
+vidyasagar,ch:তৎ,0.04110302266562476,for,character n-gram “তৎ”
+vidyasagar,ch:িমিত,0.039978412913196815,for,character n-gram “িমিত”
+vidyasagar,pos:PUNCT PUNCT,-0.05838282767359346,against,POS pattern PUNCT–PUNCT
+vidyasagar,pos:VERB PUNCT PUNCT,-0.04812941796629213,against,POS pattern VERB–PUNCT–PUNCT
+vidyasagar,pos:PUNCT PUNCT NOUN,-0.04447734216175348,against,POS pattern PUNCT–PUNCT–NOUN
+vidyasagar,ch:ন্দ,-0.038445773859989756,against,character n-gram “ন্দ”
+vidyasagar,ch:ংর,-0.033992756378650936,against,character n-gram “ংর”
+vidyasagar,ch:ড়,-0.03390492968614986,against,character n-gram “ড়”
+vidyasagar,st:dash_rate,-0.03383933804190005,against,dash rate
+vidyasagar,"ch:"" ",-0.03379057010878013,against,"character n-gram “""␣”"
+vidyasagar,ch:ইংর,-0.033531067929855635,against,character n-gram “ইংর”
+vidyasagar,pos:NOUN CCONJ,-0.03344289305937319,against,POS pattern NOUN–CCONJ

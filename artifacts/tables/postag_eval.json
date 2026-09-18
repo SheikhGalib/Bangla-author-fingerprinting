@@ -1,0 +1,141 @@
+{
+  "n_sentences": 56,
+  "n_tokens": 320,
+  "accuracy": 0.871875,
+  "per_tag": {
+    "ADJ": {
+      "support": 13,
+      "recall": 0.7692307692307693
+    },
+    "ADP": {
+      "support": 2,
+      "recall": 0.5
+    },
+    "ADV": {
+      "support": 13,
+      "recall": 0.46153846153846156
+    },
+    "CCONJ": {
+      "support": 2,
+      "recall": 1.0
+    },
+    "DET": {
+      "support": 14,
+      "recall": 0.2857142857142857
+    },
+    "INTJ": {
+      "support": 6,
+      "recall": 0.5
+    },
+    "NOUN": {
+      "support": 66,
+      "recall": 0.8181818181818182
+    },
+    "NUM": {
+      "support": 2,
+      "recall": 1.0
+    },
+    "PART": {
+      "support": 9,
+      "recall": 0.7777777777777778
+    },
+    "PRON": {
+      "support": 49,
+      "recall": 0.9795918367346939
+    },
+    "PUNCT": {
+      "support": 73,
+      "recall": 1.0
+    },
+    "VERB": {
+      "support": 71,
+      "recall": 0.971830985915493
+    }
+  },
+  "top_confusions": [
+    [
+      [
+        "NOUN",
+        "VERB"
+      ],
+      10
+    ],
+    [
+      [
+        "DET",
+        "PRON"
+      ],
+      7
+    ],
+    [
+      [
+        "ADV",
+        "ADP"
+      ],
+      4
+    ],
+    [
+      [
+        "INTJ",
+        "PART"
+      ],
+      3
+    ],
+    [
+      [
+        "ADV",
+        "CCONJ"
+      ],
+      3
+    ],
+    [
+      [
+        "ADJ",
+        "NUM"
+      ],
+      2
+    ],
+    [
+      [
+        "DET",
+        "PART"
+      ],
+      2
+    ],
+    [
+      [
+        "PART",
+        "PRON"
+      ],
+      2
+    ],
+    [
+      [
+        "VERB",
+        "NOUN"
+      ],
+      2
+    ],
+    [
+      [
+        "DET",
+        "CCONJ"
+      ],
+      1
+    ],
+    [
+      [
+        "PRON",
+        "VERB"
+      ],
+      1
+    ],
+    [
+      [
+        "ADJ",
+        "ADV"
+      ],
+      1
+    ]
+  ]
+}

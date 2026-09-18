@@ -1,0 +1,28 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{llcc}
+\toprule
+Model & Feature family & Accuracy (95\% CI) & Macro-F1 \\
+\midrule
+Generative char-5-gram LM & characters & 0.834 \;[0.806, 0.861] & 0.843 \\
+SVM · structural only & structural & 0.801 \;[0.770, 0.829] & 0.799 \\
+SVM · stylometric + BanglaBERT & combined & 0.801 \;[0.771, 0.830] & 0.784 \\
+SVM · funcword + structural & funcword+structural & 0.798 \;[0.768, 0.826] & 0.798 \\
+SVM · all stylometric & funcword+structural+charngram+posngram & 0.795 \;[0.765, 0.824] & 0.790 \\
+SVM · stylometric + scratch w2v & combined & 0.791 \;[0.760, 0.820] & 0.784 \\
+SVM · char n-grams only & charngram & 0.778 \;[0.746, 0.808] & 0.773 \\
+Fine-tuned BanglaBERT & pretrained transformer & 0.775 \;[0.746, 0.803] & 0.763 \\
+SVM · BanglaBERT frozen & embeddings & 0.772 \;[0.743, 0.803] & 0.751 \\
+Generative word-3-gram LM & words & 0.768 \;[0.736, 0.799] & 0.767 \\
+SVM · scratch w2v (SIF pooled) & embeddings & 0.767 \;[0.736, 0.796] & 0.756 \\
+SVM · scratch w2v (mean pooled) & embeddings & 0.756 \;[0.725, 0.787] & 0.742 \\
+SVM · function words only & funcword & 0.726 \;[0.694, 0.758] & 0.720 \\
+SVM · POS n-grams only & posngram & 0.611 \;[0.574, 0.646] & 0.602 \\
+\midrule
+Chance & --- & 0.200 & 0.200 \\
+\bottomrule
+\end{tabular}
+\caption{Closed-set authorship attribution on the held-out, work-disjoint test split. Intervals are 95\% percentile bootstrap over test passages.}
+\label{tab:results}
+\end{table}

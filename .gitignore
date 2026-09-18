@@ -1,0 +1,86 @@
+# ---------------------------------------------------------------------------
+# Environment
+# ---------------------------------------------------------------------------
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+
+# ---------------------------------------------------------------------------
+# Jupyter
+# ---------------------------------------------------------------------------
+# Notebook *outputs* are deliberately committed: the executed notebooks are the
+# deliverable, and they are what the report quotes.  Only the scratch files go.
+.ipynb_checkpoints/
+*-checkpoint.ipynb
+
+# ---------------------------------------------------------------------------
+# Data — the large, regenerable half
+# ---------------------------------------------------------------------------
+# The crawl cache (25 MB) and the raw corpus (16 MB) rebuild from Wikisource
+# with `scripts/01_build_corpus.py`.  It takes ~40 minutes but is deterministic,
+# and neither belongs in version control.
+data/raw/cache/
+data/raw/corpus_raw.json
+
+# Segmented passages (12 MB) rebuild from the raw corpus in notebook 01.
+data/processed/
+
+# Deliberately NOT ignored, because they are small and are evidence:
+#   data/raw/provenance.json      per-book proofreading counts the report cites
+#   data/raw/bn_bru-ud-test.conllu  POS-tagger gold standard (UD, CC BY-SA)
+#   data/splits/split.json        the exact split behind every reported number
+
+# ---------------------------------------------------------------------------
+# Artifacts — models out, results in
+# ---------------------------------------------------------------------------
+# 475 MB, dominated by the fine-tuned BanglaBERT checkpoint.  Everything here
+# is reproducible from the notebooks with seed 20242025.
+artifacts/models/
+artifacts/*.log
+
+# artifacts/figures/ and artifacts/tables/ stay tracked (~1 MB): they are the
+# results, and reports/numbers.tex is generated from the tables.
+
+# ---------------------------------------------------------------------------
+# LaTeX build products
+# ---------------------------------------------------------------------------
+# report.pdf itself is committed — it is the submission.
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.synctex.gz
+*.toc
+*.xdv
+reports/_minted*/
+
+# ---------------------------------------------------------------------------
+# Local scratch
+# ---------------------------------------------------------------------------
+claude-session.txt
+calude-session.txt
+scratch/
+tmp/
+*.tmp
+
+# ---------------------------------------------------------------------------
+# OS and editors
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*~

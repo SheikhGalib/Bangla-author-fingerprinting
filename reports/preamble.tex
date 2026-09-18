@@ -1,0 +1,59 @@
+% ---------------------------------------------------------------------------
+% Shared preamble.  Matches the visual language of the original proposal:
+% one muted accent colour, a light panel fill, and nothing else.
+% Compile with XeLaTeX -- fontspec and the Bengali font require it.
+% ---------------------------------------------------------------------------
+\usepackage[margin=0.95in]{geometry}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+
+\setmainfont{Latin Modern Roman}
+\setmonofont{Latin Modern Mono}[Scale=0.9]
+
+% Bengali is set in Noto Serif Bengali, vendored under reports/fonts so the
+% document builds on a machine without it installed.
+\newfontfamily\bengalifont{NotoSerifBengali-Regular.ttf}[Path=fonts/]
+\newcommand{\bn}[1]{{\bengalifont #1}}
+
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, fit, calc}
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{accent}{HTML}{2F5D62}
+\definecolor{panel}{HTML}{F4F4F4}
+\definecolor{warn}{HTML}{B04A3F}
+\definecolor{gold}{HTML}{9A7B1F}
+
+\hypersetup{colorlinks=true, linkcolor=accent, urlcolor=accent, citecolor=accent}
+
+\titleformat{\section}{\large\bfseries\color{accent}}{\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.1em}{0.45em}
+\titleformat{\subsection}{\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{0.7em}{0.25em}
+\titleformat{\subsubsection}[runin]{\bfseries\itshape}{}{0pt}{}[.]
+\setlist{itemsep=1.5pt, topsep=3pt, parsep=0pt}
+
+\captionsetup{font=small, labelfont={bf,color=accent}, skip=4pt}
+
+% A boxed aside for the things a reader should not skim past.
+\newtcolorbox{keybox}[1][]{
+  colback=panel, colframe=accent, boxrule=0.6pt, arc=1.2mm,
+  left=7pt, right=7pt, top=5pt, bottom=5pt,
+  fonttitle=\bfseries\small, coltitle=white, #1}
+
+\newtcolorbox{plainbox}{
+  colback=panel, colframe=black!45, boxrule=0.4pt, arc=1mm,
+  left=6pt, right=6pt, top=5pt, bottom=5pt}

@@ -1,0 +1,5 @@
+{
+  "random_split_accuracy": 0.993234100135318,
+  "work_disjoint_accuracy": 0.7865168539325843,
+  "leakage_inflation": 0.20671724620273368
+}
