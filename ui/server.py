@@ -1,13 +1,26 @@
-"""FastAPI backend for Bangla Authorship Attribution Web UI.
+"""FastAPI backend for the Bangla authorship-attribution demonstration.
 
-Serves the prediction API and static frontend assets.
-Adheres strictly to the contract in prompts/UI_BUILD_PROMPT.md.
+The interface has one job: let someone who has not read the code watch the
+system work and understand why the answer is trustworthy.  That shapes the API.
+
+* ``/api/corpus`` lists every book with its role and one readable paragraph, so
+  the claim "one book per author was held back" is something a visitor can
+  check rather than something the page merely asserts.
+* ``/api/compare`` runs one passage through three models at once.  A single
+  verdict hides the interesting part; three side by side show where they agree
+  and, more usefully, where they do not.
+* ``/api/demo`` offers sample passages taken live from the held-out books.
+
+Nothing here hard-codes an author, a book or a passage.  Everything is read
+from ``corpus/`` at request time, so the page cannot drift from the data the
+models were actually trained and tested on.
 """
 from __future__ import annotations
 
 import logging
 import sys
 from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -18,18 +31,19 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from banglastylo import config
-from banglastylo.interface import Attributor, DEMO_PASSAGE, FEATURE_GLOSS
+from banglastylo.compare import ComparisonPanel, catalogue
+from banglastylo.interface import FEATURE_GLOSS, Attributor
+from banglastylo.normalize import sentence_split, word_tokenize
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("banglastylo.ui")
 
 app = FastAPI(
     title="Bangla Authorship Attribution",
-    description="Auditable style fingerprinting and author prediction for Bangla literature.",
-    version="1.0.0",
+    description="Three models, three authors, one held-out book each.",
+    version="2.0.0",
 )
 
-# Enable CORS for local testing flexibility
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -38,132 +52,180 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load Attributor once at startup
+# Both are loaded once at startup.  Each failure is isolated: the panel can
+# serve two models if the third is missing, and the evidence view can be absent
+# without taking the comparison down with it.
+panel: ComparisonPanel | None = None
 attributor: Attributor | None = None
-model_load_error: str | None = None
+load_error: str | None = None
 
 try:
-    logger.info("Loading Attributor models from %s...", config.MODELS)
-    attributor = Attributor.load()
-    logger.info("Attributor models loaded successfully.")
-except FileNotFoundError as err:
-    model_load_error = (
-        f"Trained models not found in {config.MODELS}. "
-        "Please run notebook 04 (or scripts/run_notebooks.py 04) to train and cache them."
-    )
-    logger.error(model_load_error)
+    panel = ComparisonPanel()
+    logger.info("comparison panel: %s", panel.status())
 except Exception as exc:
-    model_load_error = f"Error loading models: {exc}"
-    logger.error(model_load_error, exc_info=True)
+    load_error = f"comparison panel unavailable: {exc}"
+    logger.exception("comparison panel failed to load")
+
+try:
+    attributor = Attributor.load()
+except Exception as exc:  # noqa: BLE001 - the evidence view is optional
+    logger.warning("evidence view unavailable: %s", exc)
 
 
 class PassageRequest(BaseModel):
-    text: str = Field(..., description="Bangla passage text to analyze")
-    top_k: int = Field(8, ge=1, le=50, description="Number of top features to return")
+    text: str = Field(..., description="Bangla passage to attribute")
+    top_k: int = Field(8, ge=1, le=50)
 
 
 @app.get("/api/health")
 def health():
-    """Health check reporting model loading status."""
     return {
-        "status": "ready" if attributor is not None else "degraded",
-        "models_loaded": attributor is not None,
-        "error": model_load_error,
-        "artifacts_dir": str(config.MODELS),
+        "status": "ready" if panel is not None else "degraded",
+        "models": panel.status() if panel else {},
+        "evidence_available": attributor is not None,
+        "error": load_error,
+        "authors": config.AUTHORS,
+    }
+
+
+@app.get("/api/corpus")
+def corpus_listing():
+    """Every book, its role, and a paragraph of it."""
+    books = catalogue()
+    if not books:
+        raise HTTPException(
+            status_code=503,
+            detail=f"no corpus at {config.CORPUS_TXT}; "
+                   "run scripts/01_build_corpus.py",
+        )
+    return {
+        "authors": config.AUTHORS,
+        "books": books,
+        "n_train": sum(1 for b in books if b["role"] == "train"),
+        "n_unseen": sum(1 for b in books if b["role"] == "unseen"),
     }
 
 
 @app.get("/api/demo")
 def get_demos():
-    """Pre-canned demo passages covering expected test cases."""
+    """One sample passage per author, taken from that author's held-out book."""
+    demos = {}
+    for b in catalogue():
+        if b["role"] != "unseen" or not b["glimpse"]:
+            continue
+        demos[b["author"]] = {
+            "title": f"{b['author_en']} — from “{b['book']}” (held out)",
+            "author_hint": f"{b['author_en']} ({b['author_bn']})",
+            "book": b["book"],
+            "unseen": True,
+            "text": b["glimpse"],
+        }
+    if not demos:
+        raise HTTPException(status_code=503, detail="no held-out corpus found")
+    return demos
+
+
+@app.post("/api/compare")
+def compare(p: PassageRequest):
+    """Run one passage through all three demonstration models."""
+    text = p.text.strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Passage text cannot be empty.")
+    if panel is None:
+        raise HTTPException(status_code=503, detail=load_error or "models not loaded")
+
+    verdicts = [v.__dict__ for v in panel.predict(text)]
+    live = [v for v in verdicts if v["available"] and v["predicted"]]
+    winners = {v["predicted"] for v in live}
+    tokens = len(word_tokenize(text))
+
     return {
-        "tagore": {
-            "title": "Rabindranath Tagore — Sadhu Register",
-            "author_hint": "Rabindranath Tagore (রবীন্দ্রনাথ ঠাকুর)",
-            "text": DEMO_PASSAGE,
-        },
-        "sarat": {
-            "title": "Sarat Chandra Chattopadhyay — Dena-Paona Opening",
-            "author_hint": "Sarat Chandra Chattopadhyay (শরৎচন্দ্র চট্টোপাধ্যায়)",
-            "text": (
-                "চণ্ডীগড়ে চণ্ডী বহু প্রাচীন দেবতা। কিংবদন্তী আছে রাজা বীরবাহুর কোন এক "
-                "পূর্বপুরুষ কি একটা যুদ্ধ জয় করিয়া বারুই নদীর উপকূলে এই মন্দির স্থাপিত করেন, "
-                "এবং পরবর্তীকালে কেবল ইহাকেই আশ্রয় করিয়া এই চণ্ডীগড় গ্রামখানি ধীরে ধীরে "
-                "প্রতিষ্ঠিত হইয়া উঠিয়াছিল।"
-            ),
-        },
-        "short": {
-            "title": "Short Snippet (<80 tokens warning trigger)",
-            "author_hint": "Short text for testing calibration warning",
-            "text": (
-                "বৃষ্টি থামিলে সে জানালার পাশে দাঁড়াইয়া দূরের আকাশের দিকে চাহিয়া রহিল।"
-            ),
-        },
+        "verdicts": verdicts,
+        "authors": config.AUTHORS,
+        "consensus": live[0]["predicted"] if len(winners) == 1 and live else None,
+        "unanimous": len(winners) == 1 and len(live) > 1,
+        "n_models": len(live),
+        "tokens": tokens,
+        "sentences": len(sentence_split(text)),
+        # Below this the models disagree often enough that a single label would
+        # overstate the evidence; the page says so rather than hiding it.
+        "short_warning": tokens < 40,
     }
+
+
+@app.get("/api/analytics/books")
+def analytics_books():
+    """Per-book profile: size, style statistics, distinctive words, cast."""
+    from dataclasses import asdict
+
+    from banglastylo.analytics import book_profiles
+
+    try:
+        return {"authors": config.AUTHORS,
+                "books": [asdict(b) for b in book_profiles()]}
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/api/analytics/features")
+def analytics_features():
+    """What the stylometric SVM looks at, family by family."""
+    from banglastylo.analytics import feature_families
+
+    return {"families": feature_families()}
+
+
+@app.post("/api/analytics/represent")
+def analytics_represent(p: PassageRequest):
+    """Turn one passage into BoW, n-grams and the 29 structural measurements."""
+    from banglastylo.analytics import representation_demo
+
+    text = p.text.strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Passage text cannot be empty.")
+    return representation_demo(text)
+
+
+@app.get("/api/results")
+def results_table():
+    """The scored models, straight out of the results table on disk."""
+    import csv
+
+    path = config.TABLES / "results_all.csv"
+    if not path.exists():
+        raise HTTPException(status_code=503, detail=f"{path} not found")
+    with path.open(encoding="utf-8") as fh:
+        rows = list(csv.DictReader(fh))
+    for r in rows:
+        r["accuracy"] = float(r["accuracy"])
+        r["macro_f1"] = float(r["macro_f1"])
+    return {"rows": rows, "chance": round(1 / len(config.AUTHORS), 4)}
 
 
 @app.post("/api/predict")
 def predict(p: PassageRequest):
-    """Attribute passage to one of the 5 authors and provide auditable evidence."""
-    clean_text = p.text.strip()
-    if not clean_text:
+    """The auditable view: predicted author plus the features that decided it."""
+    text = p.text.strip()
+    if not text:
         raise HTTPException(status_code=400, detail="Passage text cannot be empty.")
-
     if attributor is None:
-        raise HTTPException(
-            status_code=503,
-            detail=model_load_error or "Models are not loaded on the server.",
-        )
+        raise HTTPException(status_code=503, detail="evidence models not loaded")
 
     try:
-        # Run prediction
-        result = attributor.predict(clean_text, top_k=p.top_k)
-
-        # Profile passage structural features
-        profile_raw = Attributor.profile(clean_text)
-        profile_glossed = [
-            {
-                "key": k,
-                "label": FEATURE_GLOSS.get(k, k.replace("_", " ")),
-                "value": round(float(v), 4),
-            }
-            for k, v in profile_raw.items()
+        result = attributor.predict(text, top_k=p.top_k)
+        profile = Attributor.profile(text)
+        result["profile"] = [
+            {"key": k, "label": FEATURE_GLOSS.get(k, k.replace("_", " ")),
+             "value": round(float(v), 4)}
+            for k, v in profile.items()
         ]
-
-        # Extract Sadhu-Chalit register metrics
-        sadhu_rate = float(profile_raw.get("sadhu_rate", 0.0))
-        chalit_rate = float(profile_raw.get("chalit_rate", 0.0))
-        sadhu_chalit_ratio = float(profile_raw.get("sadhu_chalit_ratio", 0.0))
-
-        # Include author metadata dictionary so UI never hardcodes keys
-        active_keys = set(config.AUTHORS.keys())
-        authors_meta = {}
-        for k in active_keys:
-            if k in config.AUTHORS:
-                meta = config.AUTHORS[k]
-                authors_meta[k] = {
-                    "key": k,
-                    "en": meta.get("en", k),
-                    "bn": meta.get("bn", k),
-                    "short": meta.get("short", k),
-                    "years": meta.get("years", ""),
-                }
-
-        result["authors"] = authors_meta
-        result["register"] = {
-            "sadhu_rate": round(sadhu_rate, 4),
-            "chalit_rate": round(chalit_rate, 4),
-            "sadhu_chalit_ratio": round(sadhu_chalit_ratio, 4),
-        }
-        result["profile"] = profile_glossed
-
+        result["authors"] = config.AUTHORS
         return result
     except Exception as exc:
-        logger.error("Prediction failed: %s", exc, exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Inference error: {exc}")
+        logger.exception("Prediction failed")
+        raise HTTPException(status_code=500, detail=f"Inference error: {exc}") from exc
 
 
-# Mount static assets
 static_dir = ROOT / "ui" / "static"
 static_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
@@ -171,4 +233,3 @@ app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("ui.server:app", host="127.0.0.1", port=8000, reload=True)
-

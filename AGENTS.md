@@ -7,17 +7,40 @@ Context for AI coding agents. Canonical file; `CLAUDE.md` points here.
 ## What this is
 
 A Bangla authorship-attribution system for KUET CSE 4122 (NLP Laboratory).
-Given a Bangla passage, it predicts which of five public-domain authors wrote
-it and shows the evidence. It compares a **generative** paradigm (one
-Kneser–Ney language model per author, attribute to lowest perplexity) against a
-**discriminative** one (linear SVM over stylometric features, plus a fine-tuned
-BanglaBERT).
+Given a Bangla passage it predicts which of **three** authors wrote it —
+Rabindranath Tagore, Kazi Nazrul Islam, Humayun Ahmed — and shows the evidence.
 
-It is a finished, reproducible piece of coursework, not a live service. The
-pipeline has been run end-to-end; `reports/report.pdf` and the executed
-notebooks are the deliverables.
+It compares a **generative** paradigm (one Kneser–Ney language model per
+author, attribute to lowest perplexity) against a **discriminative** one
+(Naive Bayes, softmax regression, a linear SVM over stylometric features, a
+BiLSTM, a from-scratch Transformer encoder, and a fine-tuned BanglaBERT).
 
 **Team:** Abu Daud Sharif (2107002), Sheikh Md. Galib Mahim (2107020).
+
+---
+
+## The corpus, and why it is shaped this way
+
+Nine books from `ebanglalibrary.com`, three per author:
+
+| Author | Training books | Held out |
+|---|---|---|
+| Rabindranath Tagore | গল্পগুচ্ছ, সাধনা | রহস্য সমগ্র |
+| Kazi Nazrul Islam | কুহেলিকা, রিক্তের বেদন | ব্যথার দান |
+| Humayun Ahmed | হিমু, বিপদ | হিমুর হাতে কয়েকটি নীলপদ্ম |
+
+**The held-out book *is* the test set.** One book per author was designated
+`unseen` before anything was downloaded, and no fitting step ever touches it.
+Work-disjointness is therefore a property of how the corpus was collected, not
+a claim about the splitting code. This is the single most important thing to
+preserve.
+
+The corpus is also written as plain UTF-8 `.txt` under `corpus/train/` and
+`corpus/unseen/`, one file per book, so it can be read without running
+anything and a passage can be copied out of a held-out book by hand.
+
+`corpus/` and `data/` are gitignored. The books are third-party text collected
+for coursework; don't commit them, and don't upload them anywhere public.
 
 ---
 
@@ -25,238 +48,213 @@ notebooks are the deliverables.
 
 ```bash
 .venv/Scripts/python.exe      # Windows — this is the interpreter to use
-.venv/bin/python              # macOS / Linux
 ```
 
-Python 3.14, CPU only, no GPU. Always use the venv interpreter explicitly;
-there is no activation step in agent workflows.
+Python 3.14, CPU only locally. Always use the venv interpreter explicitly.
 
-**Console encoding.** Windows defaults to cp1252 and will raise
-`UnicodeEncodeError` the moment Bengali text is printed. Prefix commands that
-print Bangla:
+**Console encoding.** Windows defaults to cp1252 and raises
+`UnicodeEncodeError` the moment Bengali is printed. Prefix ad-hoc commands:
 
 ```bash
 PYTHONIOENCODING=utf-8 .venv/Scripts/python.exe -c "..."
 ```
 
-The scripts under `scripts/` set this themselves; ad-hoc one-liners do not.
-
-**Two shells are available** (Bash and PowerShell). Bash is used throughout the
-existing workflow. Note that heredocs into `python -` are reliable, but writing
-large Python files via heredoc has failed in this repo — use the file-writing
-tools for anything substantial.
+Scripts under `scripts/` set this themselves.
 
 ---
 
 ## Layout
 
 ```
-src/banglastylo/     the library — all real logic lives here
-  config.py            every path, hyper-parameter, author. Start here.
-  wikisource.py        cached, rate-limited Bengali Wikisource client
-  corpus.py            crawl → clean → passage segmentation → balance
+src/banglastylo/
+  config.py            paths, hyper-parameters, AUTHORS. Start here.
+  ebangla.py           the book roster + cached scraper for ebanglalibrary
+  overlap.py           train/unseen reprint detection  ← see invariant 2
+  corpus.py            cleaning, passage segmentation, balancing
   normalize.py         Bangla normalisation, sentence split, tokenisation
   postag.py            rule-based coarse Bangla POS tagger + UD validation
   stylometry.py        4 feature families as sklearn transformers
-  embeddings.py        skip-gram from scratch, frozen BanglaBERT, style-vs-topic
+  classifiers.py       from-scratch Naive Bayes, softmax regression, edit distance
+  neural.py            from-scratch BiLSTM + Transformer encoder
+  embeddings.py        skip-gram from scratch, frozen BanglaBERT
   models.py            Kneser-Ney LMs, generative attributor, SVM, BERT fine-tune
-  splits.py            work-disjoint splitting + the leakage check
+  splits.py            split_by_role (the one in use) + leakage check
   evaluate.py          metrics, bootstrap CIs, confusion analysis, figures
   interpret.py         exact linear attribution, permutation importance
   interface.py         the auditable prediction front end
+  compare.py           the 3 demo models side by side + corpus catalogue
+  analytics.py         per-book stats, distinctive words, recurring names
 
-notebooks/01–06      the pipeline; GENERATED by scripts/make_notebooks.py
-scripts/             corpus build, notebook generation/execution, report build
-prompts/             briefs for agents (e.g. the UI build prompt)
-reports/             report.tex + sections, WALKTHROUGH.md, figures, fonts
-data/                raw crawl + cache, processed passages, split assignments
-artifacts/           trained models, figures, result tables
-app.py               reference CLI over the prediction API
+scripts/01_build_corpus.py     download → de-overlap → write corpus/*.txt
+scripts/02_make_splits.py      segment into passages, fix train/val/test
+scripts/03_train_local.py      every CPU model + ablations
+scripts/04_collect_results.py  merge local + GPU results
+scripts/kaggle_run.py          push / status / pull the GPU job
+scripts/make_kaggle_notebook.py  generates the presentation notebook
+kaggle/bangla_authorship_complete.ipynb   GENERATED - the notebook to show
+kaggle/train_gpu.py            the remote job (BanglaBERT, BiLSTM, Transformer)
+
+corpus/train|unseen/  readable .txt, one per book  (gitignored)
+docs/LAB_COVERAGE.md  which lab concept lives where
+ui/                   FastAPI + static frontend
+  static/index.html     demo: corpus, pipeline, 3-model comparison
+  static/books.html     per-book analytics, generated from corpus/
+  static/methods.html   code, explanation and run output per step
+  static/book_notes.json  editable form/genre notes, read at page load
 ```
 
 ---
 
 ## Invariants — do not break these
 
-These are load-bearing. Violating any one invalidates the reported results.
+**1. The `unseen` books never enter any fitting step.** Not the vocabulary, not
+the TF-IDF `fit`, not the word2vec, not the BERT tokenizer training. `role` on
+`Passage` marks them; `splits.split_by_role` routes them to test and nothing
+else. `splits.leakage_report` re-checks it and is run inside
+`02_make_splits.py` and `03_train_local.py` — keep both calls.
 
-**1. Splits are work-disjoint.** Every book belongs wholly to one of
-train/val/test. This is the project's central methodological claim: random
-passage-level splitting scores 0.993, work-disjoint scores 0.787, and that
-20.7-point gap is topic leakage. Never introduce a passage-level or plain
-stratified split into the evaluation path. `splits.leakage_report()` asserts
-the invariant and is run inside notebook 02 — keep it there.
+**2. Overlap between training and held-out books is removed before training.**
+Bengali publishers reissue stories in later compilations. Tagore's *রহস্য
+সমগ্র* (held out) reprints six stories that also appear in *গল্পগুচ্ছ*
+(training). `overlap.py` detects this from the text and drops the offending
+chapters **from the training side**; the held-out book is never edited. Losing
+this step silently invalidates every Tagore number.
 
-**2. `SEED = 20242025`, everywhere.** In `config.py`. All results are
-reproducible; a full re-run produces byte-identical numbers. Don't add
-unseeded randomness.
+**3. `SEED = 20242025`, everywhere.** All results reproducible; a re-run
+produces identical numbers.
 
-**3. Nothing from test touches training.** The from-scratch word2vec is fit on
-the **training split only**. Feature transformers are `fit` on train and only
-`transform`-ed on test. Keep it that way.
-
-**4. Only proofread Wikisource pages.** `wikisource.MIN_PAGE_QUALITY = 3`.
-Level-1 pages are raw OCR, which for Bangla is frequently garbled into
-Devanagari look-alikes. Lowering this silently poisons the corpus.
+**4. Training is unbalanced and class-weighted; the test set is balanced.**
+Down-sampling Tagore to Humayun's size would discard most of the training
+material. The test set *is* balanced (179/author) so accuracy is directly
+readable against a 1/3 chance rate.
 
 **5. No `gensim`, no `bnlp-toolkit`.** Neither has a Python 3.14 wheel and both
-need a C toolchain that is unavailable here. Word2Vec and the POS tagger are
-implemented from scratch for that reason — it is deliberate, documented in the
-report, and should not be "simplified" by adding those dependencies back.
+need an unavailable C toolchain. Word2Vec, the POS tagger, Naive Bayes and
+softmax regression are from scratch for that reason — it is deliberate,
+documented, and is also what the labs asked for.
 
 **6. Report numbers are generated, never typed.** `scripts/make_report.py`
-writes `reports/numbers.tex` from `artifacts/tables/`. The LaTeX prose uses
-macros (`\bestAcc`, `\leakGap`, …). Never hard-code a figure into a `.tex`
-file. A missing macro renders as a visible `??` by design.
+writes `reports/numbers.tex` from `artifacts/tables/`. A missing macro renders
+as a visible `??` by design.
 
 ---
 
 ## Commands
 
 ```bash
-# Full pipeline from nothing (~1.5 h; see README for the step-by-step)
-.venv/Scripts/python.exe scripts/01_build_corpus.py       # ~30-45 min, cached
-.venv/Scripts/python.exe scripts/run_notebooks.py         # ~50 min first time
+.venv/Scripts/python.exe scripts/01_build_corpus.py    # ~5 min cold, 0 cached
+.venv/Scripts/python.exe scripts/02_make_splits.py     # seconds
+.venv/Scripts/python.exe scripts/03_train_local.py     # ~2 min
+.venv/Scripts/python.exe scripts/kaggle_run.py push    # GPU job
+.venv/Scripts/python.exe scripts/kaggle_run.py status
+.venv/Scripts/python.exe scripts/kaggle_run.py pull
+.venv/Scripts/python.exe scripts/04_collect_results.py
+.venv/Scripts/python.exe scripts/05_report_artifacts.py
 .venv/Scripts/python.exe scripts/make_report.py
-cd reports && latexmk -xelatex report.tex
 
-# Selected notebooks only
-.venv/Scripts/python.exe scripts/run_notebooks.py 04 05
+# The single presentation notebook (generated, then run on Kaggle GPU)
+.venv/Scripts/python.exe scripts/make_kaggle_notebook.py
+.venv/Scripts/python.exe scripts/kaggle_run.py push-notebook
+.venv/Scripts/python.exe scripts/kaggle_run.py status-notebook
+.venv/Scripts/python.exe scripts/kaggle_run.py pull-notebook   # -> notebooks/
 
-# Regenerate the notebooks from their source  ⚠ SEE GOTCHA BELOW
-.venv/Scripts/python.exe scripts/make_notebooks.py
+# The interface: demo + /books.html + /methods.html
+.venv/Scripts/python.exe -m uvicorn ui.server:app --port 8000
 
-# Lint (must pass clean)
-.venv/Scripts/python.exe -m ruff check src/ scripts/ app.py
-
-# Try the model
+.venv/Scripts/python.exe -m ruff check src/ scripts/ ui/ app.py   # must pass clean
 PYTHONIOENCODING=utf-8 .venv/Scripts/python.exe app.py --demo
 ```
-
-### Cost of each stage
-
-| Stage | Cost | Cached? |
-|---|---|---|
-| Wikisource crawl | 30–45 min | yes, `data/raw/cache/` — re-runs are free |
-| Notebooks 01, 02, 05, 06 | 1–2 min each | no, but cheap |
-| Notebook 03 (embeddings) | ~10 min first time | yes, `w2v_scratch.npz`, `banglabert_vectors.npz` |
-| Notebook 04 (BERT fine-tune) | **~45 min first time** | yes, `banglabert_finetuned/` → ~3 min after |
-
-Don't casually trigger notebook 04 from scratch. If you need it re-run, check
-`artifacts/models/banglabert_finetuned/classes.txt` exists first — the notebook
-reloads the checkpoint when it does.
 
 ---
 
 ## Gotchas found the hard way
 
-Each of these cost real time. They are listed so they cost nobody else any.
+Each of these cost real time.
 
-**`make_notebooks.py` wipes executed outputs.** It regenerates the `.ipynb`
-files from scratch. If you regenerate, you must re-run `run_notebooks.py` or
-the committed notebooks will have no outputs. The notebooks are the deliverable
-— they are expected to have outputs stored.
+**ebanglalibrary slugs are not consistently normalised.** One book's URL spells
+য় **decomposed** (`য` + nukta, `%af%bc`) where every other spells it
+precomposed (`%9f`). They are visually identical and the site 404s on the wrong
+one. Always harvest a book URL from a page, never retype it.
 
-**`latexmk` can fail silently.** If output is redirected to `/dev/null` and you
-only grep for "Output written", you can read a stale PDF and think it rebuilt.
-Always check `report.log` for lines starting with `!`, and check the PDF's
-mtime.
+**Chapter `<p>` tags are not always direct children of `.entry-content`.** A
+minority of pages nest them one level deeper. Taking only direct children
+returns *nothing* for those, silently — it cost two chapters of ব্যথার দান.
+`_content_block` falls back to descendants.
 
-**LaTeX macro names cannot contain digits.** `\bestF1` parses as `\bestF`
-followed by a stray `1` and produces a baffling "Missing \begin{document}".
-Hence `bestFone` in `make_report.py`.
+**Shingle stride must be 1 in `overlap.py`.** At stride 5 two printings of the
+same story fall out of phase — a single extra token shifts every later window —
+and identical stories scored 0.10–0.32 containment, under the threshold. At
+stride 1 the same pairs score 0.67–0.99 and everything else scores exactly
+0.000.
 
-**Two authors are Tagore, two are Chattopadhyay.** Surname-only labels collide
-— silently on plots, loudly as duplicate DataFrame columns. Use
-`config.AUTHORS[key]["short"]` or `evaluate.short()`.
+**Kaggle does not mount a dataset at its slug.** This one mounted at
+`/kaggle/input/datasets/...`, not `/kaggle/input/bangla-authorship`. Never
+hard-code the input path in a kernel; `train_gpu.find_input()` searches
+recursively and prints the actual mounts on failure.
 
-**Wikimedia rate-limits hard.** HTTP 429 within a handful of anonymous requests.
-`config.REQUEST_DELAY = 1.5` plus exponential backoff. Don't lower it. Fetch
-`পাতা:` pages in batches of 50 via `prop=revisions` — `action=parse` per chapter
-is ~50× more requests.
+**A kernel pushed immediately after a dataset version sees no data.** Wait for
+the dataset to report `ready`.
 
-**Main-namespace Wikisource pages contain no text.** They are
-`<pages index="Book.pdf" from=… to=…/>` transclusions. The prose lives in the
-`পাতা:` (Page:) namespace.
+**A stale checkpoint fails silently and convincingly.** `artifacts/models/` held
+a BanglaBERT from the earlier five-author study; the UI loaded it and returned
+fluent, high-confidence predictions naming authors the corpus no longer has.
+`compare.ComparisonPanel._roster_matches` rejects any checkpoint whose class
+list is not exactly `config.AUTHORS`. Keep that check.
+
+**Notebook cells are authored inside raw triple-quoted strings.** An escaped
+double quote survives into the generated code verbatim and breaks the cell, so
+docstrings inside notebook code use triple *single* quotes.
+`make_kaggle_notebook.py` is the source of truth; never hand-edit the `.ipynb`.
+
+**`latexmk` can fail silently.** Check `report.log` for lines starting with `!`
+and confirm the PDF's mtime moved. Grepping for "Output written" happily
+reports success on a stale build.
+
+**LaTeX macro names cannot contain digits.** `\bestF1` parses as `\bestF` plus
+a stray `1`. Hence `bestFone`.
 
 **`char_wb` n-grams carry word-boundary spaces.** Two n-grams differing only by
-a leading/trailing space are different features. The interface renders them as
-`␣` (U+2423) so they are distinguishable on screen — don't strip it.
+a leading/trailing space are different features. The interface renders the
+space as `␣` (U+2423) — don't strip it.
 
-**sklearn returns `numpy.str_`.** A `str` subclass, so it mostly works, but it
-surprises `type(x) is str` checks and strict serialisers. `interpret.py`
-coerces everything to plain Python types on the way out; keep that boundary.
-
-**Verse falls out of the corpus filter.** Poetry lines are short and are
-dropped by the ≥30-character line rule. This is the right control but it was
-*accidental*, and both the report and WALKTHROUGH say so. Don't rewrite that
-into a deliberate design decision.
+**sklearn returns `numpy.str_`.** A `str` subclass, so it mostly works but
+surprises `type(x) is str`. `interpret.py` coerces on the way out.
 
 ---
 
 ## Code conventions
 
-Match the surrounding code; it is consistent.
-
 - `from __future__ import annotations` at the top of every module.
-- Module docstrings explain **why**, not what — especially the non-obvious
-  choices (why Kneser–Ney, why a fixed function-word lexicon, why a
-  hand-written tagger). Keep that standard.
-- Comments earn their place by explaining a decision or a trap, not by
-  narrating the line below.
+- Module docstrings explain **why**, not what — especially non-obvious choices.
+- Comments earn their place by explaining a decision or a trap.
 - Type hints on public functions. `X | None`, `list[str]`, `dict[str, int]`.
-- Feature transformers are sklearn-compatible (`fit`/`transform`/
-  `get_feature_names_out`) so ablations are block swaps, not rewrites.
+- Feature transformers are sklearn-compatible so ablations are block swaps.
 - Feature names are namespaced by family: `fw:`, `st:`, `ch:`, `pos:`. The
   prefix is load-bearing — `permutation_importance_grouped` splits on it.
-- Bengali strings appear inline in source (lexicons, markers). Files are UTF-8.
 - Ruff must pass clean.
 
 ---
 
 ## Things that look wrong but are not
 
-- **POS tagger at 87.2%** is scored on `UD_Bengali-BRU`: 56 sentences, 320
-  tokens. Small on purpose — it is the *only* Bengali UD treebank, and it is
-  used for evaluation precisely because it is too small to train on.
-- **Permutation importance says structural features are worthless
-  (−0.008) while the ablation says they are the best single family (0.801).**
-  Both are correct. Permutation importance measures marginal contribution under
-  redundancy; character n-grams already encode the same information. See
-  WALKTHROUGH §7. Do not "fix" this.
-- **`SVM · all stylometric` (0.795) scores below `SVM · structural only`
-  (0.801).** The bootstrap intervals overlap heavily; it means "no gain", not
-  "harm".
-- **The generative model beats the fine-tuned transformer.** Real, and the
-  headline finding. The transformer is compute-constrained (2 epochs, 192
-  tokens, CPU) and the report states this explicitly rather than claiming
-  transformers lose the task generally.
+- **Accuracy is ~0.97, far above the old five-author study's 0.79.** Three
+  authors instead of five, and they span 1861–2012 with very different
+  registers. Part of what is being detected is era and orthography, not
+  authorial habit alone. Say so; don't quietly present it as pure style.
+- **The TF-IDF word-unigram baseline scores 0.968, nearly the best.** Vocabulary
+  is doing a lot of work. That is a finding to report, not a bug to hide.
+- **POS tagger at 87.2%** is scored on `UD_Bengali-BRU`: 56 sentences. Small on
+  purpose — it is the only Bengali UD treebank.
+- **The generative model beats the fine-tuned transformer.** Consistent with
+  the earlier study, and the headline finding.
 
 ---
 
 ## What not to do
 
-- Don't retrain models to test a UI or docs change — load the pickles.
+- Don't retrain to test a UI or docs change — load the pickles.
 - Don't add a dependency without checking it has a Python 3.14 wheel.
-- Don't edit files under `artifacts/` or `data/` by hand; they are generated.
-- Don't hand-edit `notebooks/*.ipynb` — edit `scripts/make_notebooks.py`, then
-  regenerate and re-run.
+- Don't edit files under `artifacts/`, `data/` or `corpus/` by hand.
 - Don't hard-code result numbers into prose, LaTeX or Markdown.
-- Don't commit `artifacts/models/` (475 MB) or the corpus. See `.gitignore`.
-- Don't overstate the results. The system is a **closed set of five authors**
-  at ~83% accuracy on literary prose from 1820–1951. `WALKTHROUGH.md` §8 lists
-  precisely what the findings do and do not license; match that register in any
-  text you write.
-
----
-
-## Where to look
-
-| Question | File |
-|---|---|
-| How do I run this from scratch? | `README.md` |
-| What do the numbers mean? Which should I distrust? | `reports/WALKTHROUGH.md` |
-| What was built and found? | `reports/report.pdf` |
-| What is the prediction API? | `src/banglastylo/interface.py`, `app.py` |
-| Building a UI? | `prompts/UI_BUILD_PROMPT.md` |
-| What is configurable? | `src/banglastylo/config.py` |
+- Don't commit `artifacts/models/`, `corpus/` or `data/`.
+- Don't overstate the results. Closed set of three authors, literary prose.

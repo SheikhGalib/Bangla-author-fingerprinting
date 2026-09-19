@@ -26,8 +26,26 @@ TABLES = ARTIFACTS / "tables"
 REPORTS = ROOT / "reports"
 REPORT_FIGURES = REPORTS / "figures"
 
-for _p in (RAW, PROCESSED, SPLITS, MODELS, FIGURES, TABLES, REPORT_FIGURES):
-    _p.mkdir(parents=True, exist_ok=True)
+#: Human-readable plain-text corpus.  This is the copy a reader opens: one
+#: ``.txt`` per book, split into the two folders the methodology turns on.
+#: ``train/`` is everything the models may learn from; ``unseen/`` holds one
+#: book per author that no fitting step is ever allowed to touch.
+CORPUS_TXT = ROOT / "corpus"
+CORPUS_TRAIN = CORPUS_TXT / "train"
+CORPUS_UNSEEN = CORPUS_TXT / "unseen"
+
+# Creating the output tree on import is a convenience for local runs, but it
+# must never be a condition of importing the package.  On Kaggle the library is
+# read off a read-only dataset mount, where every one of these raises
+# OSError(30) — which surfaced as the whole GPU job failing at `import config`
+# with no obvious connection to directory creation.  Remote jobs write to their
+# own working directory and do not need these at all.
+for _p in (RAW, PROCESSED, SPLITS, MODELS, FIGURES, TABLES, REPORT_FIGURES,
+           CORPUS_TRAIN, CORPUS_UNSEEN):
+    try:
+        _p.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass
 
 # ----------------------------------------------------------------------------
 # Corpus
@@ -44,10 +62,42 @@ USER_AGENT = (
 #: HTTP 429 quickly if this is dropped, so we stay deliberately polite.
 REQUEST_DELAY = 1.5
 
-#: Candidate authors.  ``AUTHORS`` maps a short ASCII key (used in filenames and
-#: plot labels) to the Bengali Wikisource ``লেখক:`` page title.  Every one of
-#: these is out of copyright: all died more than 60 years before this project.
+#: The three authors under study.  ``key`` is what filenames, label vectors
+#: and plot legends use; ``bn`` is what a Bengali reader sees in the UI.
+#:
+#: The roster is deliberately famous.  An examiner who does not read the
+#: source code still knows these three names and can judge whether a
+#: prediction is plausible, which a roster of nineteenth-century essayists
+#: does not allow.  They also span a century and three very different
+#: registers -- Tagore's literary prose, Nazrul's charged romanticism,
+#: Humayun Ahmed's spare modern dialogue -- so a confusion between them is
+#: informative rather than inevitable.
 AUTHORS: dict[str, dict[str, str]] = {
+    "tagore": {
+        "bn": "রবীন্দ্রনাথ ঠাকুর",
+        "en": "Rabindranath Tagore",
+        "short": "Tagore",
+        "years": "1861-1941",
+    },
+    "nazrul": {
+        "bn": "কাজী নজরুল ইসলাম",
+        "en": "Kazi Nazrul Islam",
+        "short": "Nazrul",
+        "years": "1899-1976",
+    },
+    "humayun": {
+        "bn": "হুমায়ূন আহমেদ",
+        "en": "Humayun Ahmed",
+        "short": "Humayun",
+        "years": "1948-2012",
+    },
+}
+
+#: The earlier Wikisource roster, kept because :mod:`wikisource` and the
+#: crawler in :mod:`corpus` still build against it, and because the report's
+#: leakage experiment was run on it.  It is not the corpus under study.
+WIKISOURCE_AUTHORS: dict[str, dict[str, str]] = {
+
     "tagore": {
         "wikisource": "লেখক:রবীন্দ্রনাথ ঠাকুর",
         "bn": "রবীন্দ্রনাথ ঠাকুর",
@@ -123,19 +173,25 @@ WORK_BLOCKLIST: tuple[str, ...] = (
 # Passage sampling
 # ----------------------------------------------------------------------------
 #: Target size of one attribution unit ("passage"), in whitespace tokens.
-PASSAGE_TOKENS = 220
+#:
+#: Two things set this.  The smallest author's training material is ~30k
+#: tokens, so a large passage would leave too few units to train on; and the
+#: intended demonstration is a reader pasting a paragraph in, which is
+#: typically 50-150 words rather than 220.  120 satisfies both.
+PASSAGE_TOKENS = 120
 
 #: A passage shorter than this after cleaning is discarded.
-MIN_PASSAGE_TOKENS = 120
+MIN_PASSAGE_TOKENS = 60
 
 #: Authors with fewer than this many passages are dropped from the study.
-MIN_PASSAGES_PER_AUTHOR = 300
+MIN_PASSAGES_PER_AUTHOR = 200
 
-#: …and an author needs at least this many distinct works, which is the harder
-#: constraint.  A one-book author cannot participate in a work-disjoint split at
-#: all: every passage of theirs would land in a single split.  Dropping them is
-#: the honest move, and the report names who was dropped and why.
-MIN_WORKS_PER_AUTHOR = 3
+#: …and an author needs at least this many distinct works.  A one-book author
+#: cannot participate in a work-disjoint split at all: every passage of theirs
+#: would land in a single split.  Each author here contributes two training
+#: books plus one held-out book, so two is the binding figure for the training
+#: side.
+MIN_WORKS_PER_AUTHOR = 2
 
 #: Passages per author after balancing (``None`` -> use the smallest author).
 BALANCE_TO: int | None = None

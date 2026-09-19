@@ -55,42 +55,7 @@ Session: 2024-25}
 
 \vfill
 
-\begin{keybox}[title=Headline result]
-\small
-On a \nAuthors{}-author closed set of public-domain Bangla prose
-(\nPassages{} passages, \nWorks{} works, \nTokens{} tokens), the best
-attributor reaches \textbf{\bestAcc{}} accuracy against \chanceAcc{} chance
---- on a \textbf{work-disjoint} split, where no book has passages on both
-sides.  The same pipeline scores \randomSplitAcc{} on a naive random split;
-that \leakGap{} gap is topic leakage, not style.
-\end{keybox}
-
 \end{titlepage}
-
-% ------------------------------------------------------------------ abstract
-\begin{abstract}
-\noindent
-We build a multi-author Bangla stylometric pipeline over public-domain prose
-from Bengali Wikisource and use it to compare a \emph{generative} attribution
-paradigm --- one Kneser--Ney language model per author, attribute to the lowest
-perplexity --- against a \emph{discriminative} one --- a linear SVM over
-stylometric and embedding features, and a fine-tuned BanglaBERT.  Alongside
-this we ask a representation-level question: in a small-corpus regime, do
-pretrained embeddings or embeddings trained from scratch on the author corpus
-better isolate style from topic?
-
-The corpus is \nPassages{} passages drawn from \nWorks{} works by \nAuthors{}
-authors spanning 1820--1951, filtered to Wikisource pages the community has
-marked proofread.  Because no usable Bangla POS tagger was available in this
-environment, one was written and validated at \posAcc{} token accuracy against
-the Universal Dependencies Bengali treebank.
-
-Our central methodological finding is that \textbf{splitting by passage rather
-than by work inflates accuracy by \leakGap{}} --- \randomSplitAcc{} against
-\workSplitAcc{} for the identical model.  Every result we report is from the
-work-disjoint split, and we argue that published Bangla attribution figures
-should state which regime they used.
-\end{abstract}
 
 \tableofcontents
 \newpage

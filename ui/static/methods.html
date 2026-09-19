@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Methods &amp; Code — Bangla Authorship Attribution</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    pre.code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; line-height: 1.55; }
+    pre.out  { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11.5px; line-height: 1.5; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen font-sans">
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <a href="/" class="w-9 h-9 rounded-lg bg-slate-200 hover:bg-slate-300 flex items-center justify-center text-slate-700 font-bold" title="Back">←</a>
+      <div>
+        <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Methods &amp; Code</h1>
+        <p class="text-xs text-slate-500">Each step: what it does, the code, and what it printed</p>
+      </div>
+    </div>
+    <nav class="flex gap-2 text-xs">
+      <a href="/" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 font-medium">Demo</a>
+      <a href="/books.html" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 font-medium">The books</a>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 py-8 space-y-10">
+
+  <!-- interactive representation demo -->
+  <section class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+    <h2 class="text-lg font-bold text-slate-900 mb-1">Try the representations yourself</h2>
+    <p class="text-sm text-slate-600 mb-3">
+      Type any Bangla sentence and see it turned into Bag-of-Words, n-grams and the
+      29 structural measurements — the three ways this project turns text into numbers.
+    </p>
+    <textarea id="rep-input" rows="3"
+      class="w-full p-3 border border-slate-300 rounded-lg font-bengali text-[15px] focus:ring-2 focus:ring-emerald-500 outline-none"
+      >সে বলিল, আজ আর কোথাও যাইব না। বাহিরে বৃষ্টি পড়িতেছে।</textarea>
+    <button id="rep-run" class="mt-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg font-semibold text-sm">
+      Convert to features
+    </button>
+    <div id="rep-out" class="mt-4"></div>
+  </section>
+
+  <div id="steps" class="space-y-8"></div>
+
+  <!-- feature families -->
+  <section>
+    <h2 class="text-lg font-bold text-slate-900 mb-1">What the SVM actually looks at</h2>
+    <p class="text-sm text-slate-600 mb-4">
+      Four feature families, 3,979 numbers per passage. Each family can be switched
+      off independently, which is how the ablation table was produced.
+    </p>
+    <div id="families" class="space-y-3"></div>
+  </section>
+
+  <!-- results -->
+  <section>
+    <h2 class="text-lg font-bold text-slate-900 mb-1">Every model we scored</h2>
+    <p class="text-sm text-slate-600 mb-4">
+      All on the same test set: 537 passages from the 3 held-out books. Chance is 0.333.
+    </p>
+    <div id="results" class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm"></div>
+  </section>
+
+  <!-- confusion matrix -->
+  <section>
+    <h2 class="text-lg font-bold text-slate-900 mb-1">Confusion matrix</h2>
+    <p class="text-sm text-slate-600 mb-3">
+      Rows are the true author, columns the prediction. The diagonal is correct answers.
+    </p>
+    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm inline-block">
+      <img src="/confusion.png" alt="Confusion matrix on the held-out books"
+           class="max-w-full" style="width:420px"
+           onerror="this.parentElement.innerHTML='<p class=&quot;text-sm text-slate-400&quot;>Run scripts/05_report_artifacts.py to generate this figure.</p>'">
+    </div>
+  </section>
+
+</main>
+
+<footer class="max-w-5xl mx-auto px-4 py-8 text-xs text-slate-400 border-t border-slate-200 mt-8">
+  Outputs shown are from the seeded pipeline (<code>SEED = 20242025</code>); a re-run reproduces them.
+</footer>
+
+<script src="/methods.js"></script>
+</body>
+</html>

@@ -3,414 +3,122 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bangla Authorship Attribution & Style Fingerprinting</title>
-  <!-- Google Fonts: Noto Sans Bengali & Inter -->
+  <title>Bangla Authorship Attribution — KUET CSE 4122</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Custom CSS -->
   <link rel="stylesheet" href="/style.css">
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen font-sans">
 
-  <!-- Navigation Bar -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-6xl mx-auto px-4 py-3 sm:px-6 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-xl shadow-inner font-bengali">
-          বা
-        </div>
-        <div>
-          <h1 class="text-lg font-bold text-slate-900 leading-tight">Bangla Authorship Attribution</h1>
-          <p class="text-xs text-slate-500 font-medium">KUET CSE 4122 · NLP Laboratory Project</p>
-        </div>
-      </div>
-      <div class="flex items-center space-x-3">
-        <span id="model-status-pill" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          Models Ready
-        </span>
-        <a href="#about-section" class="text-xs font-medium text-slate-600 hover:text-emerald-700 transition">About System</a>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Container -->
-  <main class="max-w-6xl mx-auto px-4 py-6 sm:px-6 flex-1 w-full space-y-6">
-
-    <!-- Hero / Introduction -->
-    <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 class="text-xl font-bold text-slate-900">Auditable Style Fingerprinting in Bangla Literature</h2>
-          <p class="text-sm text-slate-600 mt-1 max-w-3xl">
-            Predicts which of 5 classical Bengali authors wrote a passage based on <strong class="text-slate-800 font-semibold">how</strong> it is written rather than <strong class="text-slate-800 font-semibold">what</strong> it says, decomposing decisions into auditable stylistic evidence.
-          </p>
-        </div>
-        <div class="flex flex-wrap gap-1.5 text-xs text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-          <span class="font-semibold text-slate-700">Closed Author Set:</span>
-          <span>রবীন্দ্রনাথ ঠাকুর</span> ·
-          <span>বঙ্কিমচন্দ্র</span> ·
-          <span>শরৎচন্দ্র</span> ·
-          <span>বিদ্যাসাগর</span> ·
-          <span>অবনীন্দ্রনাথ</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Input Section -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <label for="passage-input" class="block text-sm font-bold text-slate-800">
-          Paste a Bangla Literary Passage <span class="font-bengali font-normal text-slate-500">(বাংলা অনুচ্ছেদ)</span>:
-        </label>
-        <!-- Quick Sample Buttons -->
-        <div class="flex items-center flex-wrap gap-2 text-xs">
-          <span class="text-slate-400 font-medium">Try Example:</span>
-          <button id="btn-example-tagore" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md font-medium transition flex items-center gap-1">
-            <span>Tagore</span> <span class="font-bengali text-slate-500">(রবীন্দ্রনাথ · সাধু)</span>
-          </button>
-          <button id="btn-example-sarat" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md font-medium transition flex items-center gap-1">
-            <span>Sarat Ch.</span> <span class="font-bengali text-slate-500">(শরৎচন্দ্র · দেনা-পাওনা)</span>
-          </button>
-          <button id="btn-example-short" class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-md font-medium border border-amber-200 transition">
-            Short (<80 tok)
-          </button>
-          <button id="btn-clear" class="px-2 py-1 text-slate-500 hover:text-rose-600 transition font-medium">
-            Clear
-          </button>
-        </div>
-      </div>
-
-      <!-- Textarea -->
-      <div class="relative">
-        <textarea
-          id="passage-input"
-          rows="6"
-          placeholder="এখানে কোনো বাংলা অনুচ্ছেদ পেস্ট করুন... (Paste a Bangla passage here)"
-          class="w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-900 font-bengali text-base leading-relaxed focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition shadow-inner placeholder:text-slate-400"
-        ></textarea>
-      </div>
-
-      <!-- Live Token / Sentence Counter & Warning -->
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-1 border-t border-slate-100 text-xs">
-        <div class="flex items-center gap-3 text-slate-500">
-          <span id="live-token-count" class="font-semibold text-slate-700">0 tokens</span>
-          <span>·</span>
-          <span id="live-char-count">0 characters</span>
-          <span>·</span>
-          <span id="live-sent-count">0 sentences</span>
-        </div>
-        <div id="live-short-warning" class="hidden text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded font-medium flex items-center gap-1">
-          <svg class="w-3.5 h-3.5 fill-amber-500" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-          <span>Short passage: Stylometric accuracy degrades significantly below 80 tokens.</span>
-        </div>
-      </div>
-
-      <!-- Submit Button -->
-      <div class="flex justify-end pt-2">
-        <button
-          id="btn-attribute"
-          class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold rounded-lg shadow-sm hover:shadow transition flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <svg id="spinner" class="hidden w-4 h-4 text-white animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span id="btn-text">Attribute Author & Explain</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Error Alert Box -->
-    <div id="error-box" class="hidden bg-rose-50 border border-rose-200 text-rose-800 rounded-xl p-4 text-sm flex items-start gap-3">
-      <svg class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+<!-- ======================================================= header -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-emerald-700 flex items-center justify-center text-white font-bold text-xl font-bengali">বা</div>
       <div>
-        <h4 class="font-bold">Error</h4>
-        <p id="error-message" class="mt-0.5 text-rose-700"></p>
+        <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Bangla Authorship Attribution</h1>
+        <p class="text-xs text-slate-500">KUET CSE 4122 · NLP Laboratory</p>
       </div>
     </div>
+    <div class="flex items-center gap-3">
+      <nav class="flex gap-2 text-xs">
+        <a href="/books.html" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 font-medium">The books</a>
+        <a href="/methods.html" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 font-medium">Methods &amp; code</a>
+      </nav>
+      <div id="model-status" class="flex items-center gap-1.5 text-xs"></div>
+    </div>
+  </div>
+</header>
 
-    <!-- Results Section (Dynamic) -->
-    <div id="results-wrapper" class="hidden space-y-6">
+<main class="max-w-6xl mx-auto px-4 py-8 space-y-12">
 
-      <!-- Headline Prediction Card -->
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-50 via-white to-slate-50">
-          <div class="flex items-start gap-4">
-            <div class="w-16 h-16 rounded-full bg-emerald-100 border-2 border-emerald-500 flex items-center justify-center text-emerald-800 font-bold text-2xl font-bengali shadow-inner shrink-0" id="res-author-avatar">
-              র
-            </div>
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-xs uppercase tracking-wider font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Predicted Author</span>
-                <span id="res-passage-meta" class="text-xs text-slate-500 font-medium">26 tokens · 2 sentences</span>
-              </div>
-              <h2 id="res-author-bn" class="text-2xl sm:text-3xl font-bold text-slate-900 font-bengali mt-1">রবীন্দ্রনাথ ঠাকুর</h2>
-              <p id="res-author-en" class="text-base text-slate-600 font-medium">Rabindranath Tagore <span id="res-author-years" class="text-slate-400 font-normal text-sm">(1861–1941)</span></p>
-            </div>
-          </div>
+  <!-- ===================================================== 1. corpus -->
+  <section>
+    <div class="flex items-baseline gap-3 mb-1">
+      <span class="w-7 h-7 rounded-full bg-slate-800 text-white text-sm font-bold flex items-center justify-center shrink-0">1</span>
+      <h2 class="text-xl font-bold text-slate-900">The corpus</h2>
+    </div>
+    <p class="text-sm text-slate-600 ml-10 mb-5">
+      Nine books, three per author. <strong>Two are used for training; one is held back entirely.</strong>
+      The held-back book is the test set — no model has seen a single word of it.
+      Click any book to read a paragraph of it.
+    </p>
+    <div id="corpus-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 ml-0 md:ml-10">
+      <p class="text-sm text-slate-400">Loading corpus…</p>
+    </div>
+  </section>
 
-          <!-- Quick Metrics Badges -->
-          <div class="flex flex-col items-start md:items-end gap-2 text-xs">
-            <div id="badge-agreement" class="px-3 py-1 rounded-full font-semibold flex items-center gap-1.5 shadow-sm">
-              <!-- Replaced via JS -->
-            </div>
-            <div id="badge-short-warning" class="hidden px-3 py-1 rounded-full font-semibold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1.5">
-              ⚠️ Short Passage Warning
-            </div>
-          </div>
-        </div>
+  <!-- =============================================== 2. architecture -->
+  <section>
+    <div class="flex items-baseline gap-3 mb-1">
+      <span class="w-7 h-7 rounded-full bg-slate-800 text-white text-sm font-bold flex items-center justify-center shrink-0">2</span>
+      <h2 class="text-xl font-bold text-slate-900">How BanglaBERT is trained</h2>
+    </div>
+    <p class="text-sm text-slate-600 ml-10 mb-5">
+      The eight stages every passage goes through. The held-out books leave at stage 1
+      and come back only at stage 8 — that is the whole guarantee.
+    </p>
+    <div id="pipeline" class="ml-0 md:ml-10 space-y-2"></div>
+  </section>
 
-        <!-- Disagreement Alert Banner (Conditional) -->
-        <div id="banner-disagreement" class="hidden bg-amber-50 border-y border-amber-200 p-4 text-amber-900 flex items-start gap-3 text-sm">
-          <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-          <div>
-            <h4 class="font-bold text-amber-950">Low Confidence — The Two Paradigms Disagree!</h4>
-            <p id="disagreement-details" class="mt-0.5 text-amber-800">
-              The discriminative SVM predicts <strong>Author A</strong>, but the per-author language models assign lowest perplexity to <strong>Author B</strong>. When models disagree, treat the attribution as uncertain.
-            </p>
-          </div>
-        </div>
+  <!-- ====================================================== 3. try it -->
+  <section>
+    <div class="flex items-baseline gap-3 mb-1">
+      <span class="w-7 h-7 rounded-full bg-slate-800 text-white text-sm font-bold flex items-center justify-center shrink-0">3</span>
+      <h2 class="text-xl font-bold text-slate-900">Try it</h2>
+    </div>
+    <p class="text-sm text-slate-600 ml-10 mb-4">
+      Paste any Bangla passage, or load one straight from a held-out book.
+      All three models answer the same question at once.
+    </p>
 
-        <!-- Sadhu vs Chalit Register Meter -->
-        <div class="p-6 bg-slate-50 border-t border-slate-100">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-            <div>
-              <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                <span>Stylistic Register Axis: Sadhu vs. Chalit</span>
-                <span class="font-bengali text-slate-500 font-normal">(সাধু বনাম চলিত রীতি)</span>
-              </h3>
-              <p class="text-xs text-slate-500">19th/20th-century Bengali varies strongly between formal literary (সাধু) and colloquial (চলিত) forms.</p>
-            </div>
-            <div class="text-xs font-semibold text-slate-700 bg-white px-2.5 py-1 rounded border border-slate-200" id="register-ratio-label">
-              Ratio: 0.00
-            </div>
-          </div>
-
-          <!-- Meter Bar -->
-          <div class="space-y-1.5">
-            <div class="flex justify-between text-xs font-medium text-slate-600">
-              <span class="font-bengali text-sky-700">◀ চলিত (Colloquial / Chalit)</span>
-              <span class="text-slate-400">Neutral</span>
-              <span class="font-bengali text-indigo-700">সাধু (Literary / Sadhu) ▶</span>
-            </div>
-            <div class="w-full h-3.5 bg-slate-200 rounded-full overflow-hidden relative shadow-inner">
-              <div class="absolute top-0 bottom-0 left-1/2 w-0.5 bg-slate-400 z-10"></div>
-              <div id="register-indicator-bar" class="h-full bg-gradient-to-r from-sky-500 to-indigo-600 rounded-full transition-all duration-500" style="width: 50%;"></div>
-            </div>
-            <div class="flex justify-between text-[11px] text-slate-400">
-              <span id="chalit-rate-label">Chalit marker rate: 0.00</span>
-              <span id="sadhu-rate-label">Sadhu marker rate: 0.00</span>
-            </div>
-          </div>
-        </div>
+    <div class="ml-0 md:ml-10 bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+      <div class="flex flex-wrap items-center gap-2 mb-3 text-xs">
+        <span class="text-slate-500 font-medium">Load from a held-out book:</span>
+        <span id="demo-buttons" class="contents"></span>
+        <button id="btn-clear" class="px-2 py-1 text-slate-500 hover:text-rose-600 font-medium ml-auto">Clear</button>
       </div>
 
-      <!-- Two-Column Auditable Evidence Section -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <textarea id="passage-input" rows="7"
+        class="w-full p-3 border border-slate-300 rounded-lg font-bengali text-[15px] leading-relaxed focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+        placeholder="এখানে বাংলা অনুচ্ছেদ লিখুন বা পেস্ট করুন…"></textarea>
 
-        <!-- Column 1: Discriminative (Linear SVM) -->
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4 flex flex-col justify-between">
-          <div class="space-y-4">
-            <div class="border-b border-slate-100 pb-3 flex items-start justify-between gap-2">
-              <div>
-                <span class="text-[11px] uppercase font-bold tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">Discriminative Model</span>
-                <h3 class="text-lg font-bold text-slate-900 mt-1">Linear SVM Evidence Breakdown</h3>
-                <p class="text-xs text-slate-500">Separates the 5 authors using exact linear feature contributions: \( w_i \times x_i \).</p>
-              </div>
-              <div class="text-right shrink-0">
-                <span class="text-xs text-slate-400 block font-medium">Margin over runner-up</span>
-                <span id="svm-margin-val" class="text-base font-bold text-indigo-700">+0.386</span>
-              </div>
-            </div>
-
-            <!-- Runner-up and author scores -->
-            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs space-y-1.5">
-              <div class="flex justify-between">
-                <span class="text-slate-500 font-medium">Predicted:</span>
-                <span id="svm-predicted-name" class="font-bold text-slate-800 font-bengali">রবীন্দ্রনাথ ঠাকুর</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-slate-500 font-medium">Runner-Up:</span>
-                <span id="svm-runnerup-name" class="font-semibold text-slate-700 font-bengali">শরৎচন্দ্র চট্টোপাধ্যায়</span>
-              </div>
-              <div class="pt-1 border-t border-slate-200">
-                <span class="text-slate-500 block mb-1">Decision Scores (higher = better):</span>
-                <div id="svm-scores-bars" class="space-y-1">
-                  <!-- Populated via JS -->
-                </div>
-              </div>
-            </div>
-
-            <!-- Human-Readable Evidence (Supporting) -->
-            <div class="space-y-2">
-              <div class="flex items-center justify-between">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1">
-                  <span>Supporting Evidence</span>
-                  <span class="text-emerald-600 font-normal lowercase">(human-checkable: function words, POS, structure)</span>
-                </h4>
-                <span class="text-[11px] text-emerald-600 font-medium">+ favours winner</span>
-              </div>
-              <div id="readable-for-list" class="space-y-2 text-xs">
-                <!-- Diverging bars via JS -->
-              </div>
-            </div>
-
-            <!-- Human-Readable Evidence (Opposing) -->
-            <div class="space-y-2 pt-2">
-              <div class="flex items-center justify-between">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-rose-700 flex items-center gap-1">
-                  <span>Opposing Evidence</span>
-                  <span class="text-rose-600 font-normal lowercase">(pointing to other authors)</span>
-                </h4>
-                <span class="text-[11px] text-rose-600 font-medium">− disfavours winner</span>
-              </div>
-              <div id="readable-against-list" class="space-y-2 text-xs">
-                <!-- Diverging bars via JS -->
-              </div>
-            </div>
-
-            <!-- Collapsible: Show all features (including character n-grams) -->
-            <div class="pt-3 border-t border-slate-100">
-              <button id="btn-toggle-all-features" class="w-full py-2 px-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 flex items-center justify-between transition">
-                <span>Technical View: Show all features (including character n-grams)</span>
-                <svg id="arrow-all-features" class="w-4 h-4 text-slate-500 transition-transform transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-              </button>
-              <div id="all-features-content" class="hidden mt-3 space-y-3 bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs">
-                <p class="text-[11px] text-slate-500 italic">
-                  Note: Character n-grams dominate raw linear contributions. The symbol <code class="bg-slate-200 px-1 py-0.5 rounded text-slate-800">␣</code> denotes a word boundary space.
-                </p>
-                <div>
-                  <span class="font-bold text-emerald-800 block mb-1">All Top Supporting Features:</span>
-                  <div id="all-for-list" class="space-y-1 font-mono text-[11px]"></div>
-                </div>
-                <div class="pt-2 border-t border-slate-200">
-                  <span class="font-bold text-rose-800 block mb-1">All Top Opposing Features:</span>
-                  <div id="all-against-list" class="space-y-1 font-mono text-[11px]"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Column 2: Generative (Language Models Perplexity) -->
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4 flex flex-col justify-between">
-          <div class="space-y-4">
-            <div class="border-b border-slate-100 pb-3 flex items-start justify-between gap-2">
-              <div>
-                <span class="text-[11px] uppercase font-bold tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">Generative Paradigm</span>
-                <h3 class="text-lg font-bold text-slate-900 mt-1">Per-Author Language Model Fit</h3>
-                <p class="text-xs text-slate-500">Character 5-gram Kneser-Ney models trained exclusively on each author's works.</p>
-              </div>
-              <div class="text-right shrink-0">
-                <span class="inline-block px-2 py-0.5 bg-amber-100 text-amber-800 font-bold rounded text-[11px]">
-                  Lower = Better Fit
-                </span>
-              </div>
-            </div>
-
-            <!-- Perplexity Chart Container -->
-            <div class="space-y-3">
-              <div class="flex justify-between items-center text-xs font-semibold text-slate-700">
-                <span>Author Model</span>
-                <span>Perplexity (Per-Character Surprise)</span>
-              </div>
-              <div id="perplexity-bars-container" class="space-y-2.5 text-xs">
-                <!-- Populated via JS -->
-              </div>
-            </div>
-
-            <!-- Generative explanation / log-odds -->
-            <div class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 text-xs space-y-2">
-              <h4 class="font-bold text-slate-800">Character Log-Odds Highlights</h4>
-              <p class="text-slate-500 text-[11px]">
-                Specific character transitions that favored the winning author's generative model over competitors:
-              </p>
-              <div id="gen-evidence-badges" class="flex flex-wrap gap-1.5 pt-1">
-                <!-- Log odds symbols via JS -->
-              </div>
-            </div>
-
-            <!-- Paradigm comparison callout -->
-            <div class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-lg text-xs text-emerald-900 space-y-1">
-              <span class="font-bold block">Why show both paradigms?</span>
-              <p class="text-emerald-800 leading-relaxed text-[11px]">
-                The generative language model is the project's overall accuracy champion (83.4%), while the linear SVM provides human-auditable feature margins (79.5%). In 75.4% of passages they reach identical conclusions.
-              </p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Structural Passage Profile (29 Features) -->
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <button id="btn-toggle-profile" class="w-full p-4 text-left font-bold text-sm text-slate-800 hover:bg-slate-50 flex items-center justify-between transition">
-          <span class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-emerald-600" viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
-            <span>Inspect 29 Structural Passage Statistics (Profile)</span>
+      <div class="flex flex-wrap items-center justify-between gap-3 mt-3">
+        <p class="text-xs text-slate-500">
+          <span id="count-tokens">0</span> words ·
+          <span id="count-sents">0</span> sentences
+          <span id="short-warning" class="hidden ml-2 text-amber-700 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5">
+            short passage — treat the answer as a guess
           </span>
-          <svg id="arrow-profile" class="w-4 h-4 text-slate-500 transition-transform transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </p>
+        <button id="btn-compare"
+          class="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 disabled:bg-slate-300 text-white rounded-lg font-semibold text-sm transition">
+          Compare all three models
         </button>
-        <div id="profile-content" class="hidden p-5 border-t border-slate-100 bg-slate-50">
-          <p class="text-xs text-slate-500 mb-3">
-            Objective stylistic scalars computed directly from the passage before applying classifiers:
-          </p>
-          <div id="profile-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs">
-            <!-- Populated via JS -->
-          </div>
-        </div>
       </div>
-
+      <p id="error-box" class="hidden mt-3 text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded-lg p-3"></p>
     </div>
+  </section>
 
-    <!-- Honesty & Domain Limitations Panel (Always Visible) -->
-    <section id="about-section" class="bg-slate-100/80 rounded-xl border border-slate-300/80 p-5 space-y-3 text-xs text-slate-600">
-      <div class="flex items-center gap-2 font-bold text-slate-900 text-sm">
-        <svg class="w-4 h-4 text-slate-700" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
-        <span>Important Honesty & Domain Limitations (§7 Contract)</span>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
-        <div class="bg-white p-3.5 rounded-lg border border-slate-200 space-y-1">
-          <span class="font-bold text-slate-800 block">Closed-Set Attribution</span>
-          <p class="text-slate-600 leading-relaxed text-[11px]">
-            The model selects exclusively among the 5 trained authors. Given text by any other author or modern Bengali, it will name one of the five; there is no "abstain" option.
-          </p>
-        </div>
-        <div class="bg-white p-3.5 rounded-lg border border-slate-200 space-y-1">
-          <span class="font-bold text-slate-800 block">Historical Literary Domain</span>
-          <p class="text-slate-600 leading-relaxed text-[11px]">
-            Trained on public-domain Bengali prose from 1820–1951. Modern Bangla, journalism, social-media posts, and rhymed verse fall out of domain.
-          </p>
-        </div>
-        <div class="bg-white p-3.5 rounded-lg border border-slate-200 space-y-1">
-          <span class="font-bold text-slate-800 block">Passage Length Sensitivity</span>
-          <p class="text-slate-600 leading-relaxed text-[11px]">
-            Stylometric estimators require sample mass. Accuracy drops from ~83% at 200 tokens down to ~55% at 40 tokens. Passages below 80 tokens carry a prominent warning.
-          </p>
-        </div>
-        <div class="bg-white p-3.5 rounded-lg border border-slate-200 space-y-1">
-          <span class="font-bold text-slate-800 block">Empirical Accuracy (~83%)</span>
-          <p class="text-slate-600 leading-relaxed text-[11px]">
-            Evaluated on work-disjoint splits to prevent character-name topic leaks. Roughly 1 in 6 predictions is wrong. Evidence is presented to assist human evaluation.
-          </p>
-        </div>
-      </div>
-    </section>
+  <!-- ===================================================== 4. results -->
+  <section id="results-section" class="hidden">
+    <div class="flex items-baseline gap-3 mb-1">
+      <span class="w-7 h-7 rounded-full bg-slate-800 text-white text-sm font-bold flex items-center justify-center shrink-0">4</span>
+      <h2 class="text-xl font-bold text-slate-900">What each model said</h2>
+    </div>
+    <p id="consensus-line" class="text-sm ml-10 mb-5"></p>
+    <div id="verdict-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 ml-0 md:ml-10"></div>
+  </section>
 
-  </main>
+</main>
 
-  <!-- Footer -->
-  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
-    <p>Khulna University of Engineering & Technology (KUET) · Department of Computer Science & Engineering</p>
-    <p class="mt-0.5 text-slate-400">CSE 4122 NLP Laboratory · Session 2024-25</p>
-  </footer>
+<footer class="max-w-6xl mx-auto px-4 py-8 text-xs text-slate-400 border-t border-slate-200 mt-8">
+  Closed set of three authors. Given text by anyone else, the models will still name one of
+  the three — there is no “none of the above”.
+</footer>
 
-  <!-- App Script -->
-  <script src="/app.js"></script>
+<script src="/app.js"></script>
 </body>
 </html>
-

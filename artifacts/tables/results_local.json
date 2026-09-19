@@ -1,0 +1,79 @@
+[
+  {
+    "model": "Kneser-Ney LM (char)",
+    "family": "generative",
+    "accuracy": 0.9757914338919925,
+    "macro_f1": 0.9757032947953176,
+    "notes": "order 5, 7s"
+  },
+  {
+    "model": "Kneser-Ney LM (word)",
+    "family": "generative",
+    "accuracy": 0.9739292364990689,
+    "macro_f1": 0.97385215183167,
+    "notes": "order 3, 1s"
+  },
+  {
+    "model": "Naive Bayes (word BoW)",
+    "family": "discriminative",
+    "accuracy": 0.9664804469273743,
+    "macro_f1": 0.9661146558782853,
+    "notes": "20000 word features, alpha=0.2"
+  },
+  {
+    "model": "Naive Bayes (char n-gram)",
+    "family": "reference",
+    "accuracy": 0.9441340782122905,
+    "macro_f1": 0.9440255540812816,
+    "notes": "3000 char features, alpha=0.2"
+  },
+  {
+    "model": "Softmax regression (stylometric)",
+    "family": "discriminative",
+    "accuracy": 0.9646182495344506,
+    "macro_f1": 0.9642831540467834,
+    "notes": "4208 features, 300 epochs"
+  },
+  {
+    "model": "SVM (all stylometric)",
+    "family": "discriminative",
+    "accuracy": 0.9702048417132216,
+    "macro_f1": 0.9699952625024671,
+    "notes": "4 families"
+  },
+  {
+    "model": "SVM (funcword only)",
+    "family": "ablation",
+    "accuracy": 0.8919925512104283,
+    "macro_f1": 0.8922917768042605,
+    "notes": ""
+  },
+  {
+    "model": "SVM (structural only)",
+    "family": "ablation",
+    "accuracy": 0.8994413407821229,
+    "macro_f1": 0.8993071324070879,
+    "notes": ""
+  },
+  {
+    "model": "SVM (charngram only)",
+    "family": "ablation",
+    "accuracy": 0.9683426443202979,
+    "macro_f1": 0.9681022253276588,
+    "notes": ""
+  },
+  {
+    "model": "SVM (posngram only)",
+    "family": "ablation",
+    "accuracy": 0.7374301675977654,
+    "macro_f1": 0.7382958649485616,
+    "notes": ""
+  },
+  {
+    "model": "TF-IDF words + SVM",
+    "family": "baseline",
+    "accuracy": 0.9683426443202979,
+    "macro_f1": 0.9681556545234189,
+    "notes": "topic-sensitive by design"
+  }
+]

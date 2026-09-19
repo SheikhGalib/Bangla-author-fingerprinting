@@ -4,7 +4,11 @@ Every number in the report body comes through a macro defined here, so the
 prose can never quietly go stale relative to the last run: change the pipeline,
 re-run this, and the report updates.  If an artifact is missing the macro is
 defined as a visible ``??`` rather than silently omitted, so a hole in the
-report is obvious at a glance.
+report is obvious at a glance rather than being read as a real figure.
+
+LaTeX control sequences are letters only -- a macro named ``bestF1`` parses as
+``bestF`` followed by a stray ``1`` and fails with a baffling error.  Hence
+``bestFone``.
 """
 from __future__ import annotations
 
@@ -25,28 +29,16 @@ T = config.TABLES
 macros: dict[str, str] = {}
 
 
-def put_config() -> None:
-    """Hyper-parameters the prose quotes, taken from config rather than retyped."""
-    macros.update(
-        CharOrder=str(config.CHAR_LM_ORDER),
-        WordOrder=str(config.WORD_LM_ORDER),
-        FTEpochs=str(config.FT_EPOCHS),
-        FTMaxLen=str(config.FT_MAX_LEN),
-        WtvDim=str(config.W2V_DIM),
-        WtvWindow=str(config.W2V_WINDOW),
-        WtvNegative=str(config.W2V_NEGATIVE),
-        PassageTokens=str(config.PASSAGE_TOKENS),
-        PretrainedModel=config.PRETRAINED_MODEL.replace("_", r"\_"),
-        Seed=str(config.SEED),
-    )
-
-
 def put(name: str, value) -> None:
     macros[name] = str(value)
 
 
 def pct(x: float, places: int = 1) -> str:
     return f"{100 * float(x):.{places}f}\\%"
+
+
+def tex_escape(s: str) -> str:
+    return str(s).replace("&", r"\&").replace("_", r"\_").replace("%", r"\%")
 
 
 def read_csv(name: str) -> pd.DataFrame | None:
@@ -59,43 +51,67 @@ def read_json(name: str):
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
 
 
-put_config()
+# ---------------------------------------------------------------------------
+# Configuration the prose quotes
+# ---------------------------------------------------------------------------
+put("CharOrder", config.CHAR_LM_ORDER)
+put("WordOrder", config.WORD_LM_ORDER)
+put("PassageTokens", config.PASSAGE_TOKENS)
+put("MinPassageTokens", config.MIN_PASSAGE_TOKENS)
+put("WtvDim", config.W2V_DIM)
+put("TopFunctionWords", config.TOP_FUNCTION_WORDS)
+put("PretrainedModel", tex_escape(config.PRETRAINED_MODEL))
+put("Seed", config.SEED)
+put("nAuthors", len(config.AUTHORS))
+put("chanceAcc", f"{1 / len(config.AUTHORS):.3f}")
+put("chancePct", pct(1 / len(config.AUTHORS)))
 
 # ---------------------------------------------------------------------------
 # Corpus
 # ---------------------------------------------------------------------------
 stats = read_csv("corpus_stats.csv")
 if stats is not None:
-    put("nAuthors", len(stats))
     put("nPassages", f"{int(stats['passages'].sum()):,}")
     put("nWorks", int(stats["works"].sum()))
+    put("nChapters", int(stats["chapters"].sum()))
     put("nTokens", f"{int(stats['tokens'].sum()):,}")
-    put("passagesPerAuthor", f"{int(stats['passages'].iloc[0]):,}")
     put("meanPassageTokens", f"{stats['mean_passage_tokens'].mean():.0f}")
-    put("chanceAcc", f"{1 / len(stats):.3f}")
-    put("chancePct", pct(1 / len(stats)))
-    put("earliestAuthor", stats.sort_values("years")["author"].iloc[0])
+    longest = stats.sort_values("mean_sent_len", ascending=False).iloc[0]
+    shortest = stats.sort_values("mean_sent_len").iloc[0]
+    put("longestSentAuthor", tex_escape(longest["author"]))
+    put("longestSentLen", f"{longest['mean_sent_len']:.1f}")
+    put("shortestSentAuthor", tex_escape(shortest["author"]))
+    put("shortestSentLen", f"{shortest['mean_sent_len']:.1f}")
 
 prov = config.RAW / "provenance.json"
 if prov.exists():
-    rows = [r for rs in json.loads(prov.read_text(encoding="utf-8")).values()
-            for r in rs]
-    seen = sum(r["n_pages"] for r in rows)
-    kept = sum(r["n_proofread"] for r in rows)
-    put("scanPagesSeen", f"{seen:,}")
-    put("scanPagesProofread", f"{kept:,}")
-    put("proofreadRate", pct(kept / max(seen, 1)))
-    put("booksTouched", len(rows))
+    rows = json.loads(prov.read_text(encoding="utf-8"))
+    put("nBooks", len(rows))
+    put("nTrainBooks", sum(1 for r in rows if r["role"] == "train"))
+    put("nUnseenBooks", sum(1 for r in rows if r["role"] == "unseen"))
+    put("corpusChars", f"{sum(r['chars'] for r in rows):,}")
+    dropped = sum(len(r.get("chapters_removed", [])) for r in rows)
+    put("nOverlapDropped", dropped)
+
+overlap = config.PROCESSED / "overlap_report.json"
+if overlap.exists():
+    hits = json.loads(overlap.read_text(encoding="utf-8"))
+    put("nOverlapHits", len(hits))
+    if hits:
+        lo = min(h["containment"] for h in hits)
+        hi = max(h["containment"] for h in hits)
+        put("overlapRange", f"{lo:.2f}--{hi:.2f}")
+        put("overlapTrainBook", tex_escape(hits[0]["train_work"]))
+        put("overlapUnseenBook", tex_escape(hits[0]["unseen_work"]))
 
 # ---------------------------------------------------------------------------
-# Splits and leakage
+# Splits
 # ---------------------------------------------------------------------------
 comp = read_csv("split_composition.csv")
 if comp is not None:
-    tot = comp[["train", "val", "test"]].to_numpy().sum()
     for part in ("train", "val", "test"):
-        put(f"{part}Frac", pct(comp[part].sum() / tot))
         put(f"n{part.capitalize()}", f"{int(comp[part].sum()):,}")
+    put("testPerAuthor", int(comp["test"].iloc[0]))
 
 leak = read_json("leakage_experiment.json")
 if leak:
@@ -113,42 +129,41 @@ if pos:
     put("posAccRaw", f"{pos['accuracy']:.3f}")
     put("posTokens", pos["n_tokens"])
     put("posSentences", pos["n_sentences"])
-    per = pos["per_tag"]
-    for tag in ("PRON", "VERB", "NOUN", "PUNCT", "ADP", "PART"):
-        if tag in per:
-            put(f"posRecall{tag.capitalize()}", pct(per[tag]["recall"], 0))
 
 # ---------------------------------------------------------------------------
 # Main results
 # ---------------------------------------------------------------------------
-res = read_csv("results_main.csv")
+res = read_csv("results_all.csv")
+if res is None:
+    res = read_csv("results_local.csv")
 if res is not None:
-    res = res.sort_values("accuracy", ascending=False)
+    res = res.sort_values("accuracy", ascending=False).reset_index(drop=True)
     best = res.iloc[0]
-    put("bestModel", best["model"].replace("·", "--"))
+    put("bestModel", tex_escape(best["model"]))
     put("bestAcc", f"{best['accuracy']:.3f}")
     put("bestAccPct", pct(best["accuracy"]))
     put("bestFone", f"{best['macro_f1']:.3f}")
-    put("bestCI", f"[{best['acc_lo']:.3f}, {best['acc_hi']:.3f}]")
+    put("nModels", len(res))
 
     def find(fragment: str):
         m = res[res["model"].str.contains(fragment, case=False, regex=False)]
         return m.iloc[0] if len(m) else None
 
     for key, fragment in [
-        ("genChar", "Generative char"),
-        ("genWord", "Generative word"),
-        ("svmAll", "all stylometric"),
-        ("svmFunc", "function words only"),
+        ("genChar", "Kneser-Ney LM (char)"),
+        ("genWord", "Kneser-Ney LM (word)"),
+        ("svmAll", "SVM (all stylometric)"),
+        ("svmFunc", "funcword only"),
         ("svmStruct", "structural only"),
-        ("svmPos", "POS n-grams only"),
-        ("svmChar", "char n-grams only"),
-        ("svmScratchMean", "scratch w2v (mean"),
-        ("svmScratchSif", "scratch w2v (SIF"),
-        ("svmBert", "BanglaBERT frozen"),
-        ("bertFT", "Fine-tuned BanglaBERT"),
-        ("comboScratch", "stylometric + scratch"),
-        ("comboBert", "stylometric + BanglaBERT"),
+        ("svmPos", "posngram only"),
+        ("svmChar", "charngram only"),
+        ("naiveBayes", "Naive Bayes (word BoW)"),
+        ("naiveBayesChar", "Naive Bayes (char n-gram)"),
+        ("softmax", "Softmax regression"),
+        ("tfidfBaseline", "TF-IDF words"),
+        ("bertFT", "BanglaBERT (fine-tuned)"),
+        ("bilstm", "BiLSTM"),
+        ("transScratch", "Transformer (from scratch)"),
     ]:
         row = find(fragment)
         if row is not None:
@@ -156,43 +171,24 @@ if res is not None:
             put(f"{key}AccPct", pct(row["accuracy"]))
             put(f"{key}Fone", f"{row['macro_f1']:.3f}")
 
-# ---------------------------------------------------------------------------
-# Style vs topic
-# ---------------------------------------------------------------------------
-svt = read_csv("style_vs_topic.csv")
-if svt is not None:
-    svt = svt.rename(columns={svt.columns[0]: "representation"})
-    for _, r in svt.iterrows():
-        key = ("Scratch" if "scratch" in r["representation"].lower() else "Bert")
-        if "mean" in r["representation"]:
-            key = "ScratchMean"
-        elif "SIF" in r["representation"]:
-            key = "ScratchSif"
-        put(f"sil{key}Author", f"{r['silhouette_author']:.3f}")
-        put(f"sil{key}Work", f"{r['silhouette_work']:.3f}")
-        put(f"sil{key}Ratio", f"{r['style_topic_ratio']:.2f}")
+    # Best of each paradigm, so the comparison sentence writes itself.
+    gen = res[res["family"] == "generative"]
+    disc = res[res["family"].str.startswith("discriminative", na=False)]
+    if len(gen):
+        put("bestGenModel", tex_escape(gen.iloc[0]["model"]))
+        put("bestGenAcc", f"{gen.iloc[0]['accuracy']:.3f}")
+    if len(disc):
+        put("bestDiscModel", tex_escape(disc.iloc[0]["model"]))
+        put("bestDiscAcc", f"{disc.iloc[0]['accuracy']:.3f}")
 
 # ---------------------------------------------------------------------------
-# Interpretability
+# Paradigm agreement and length sensitivity
 # ---------------------------------------------------------------------------
-imp = read_csv("permutation_importance.csv")
-if imp is not None:
-    for _, r in imp.iterrows():
-        name = {"ch": "Char", "fw": "Func", "st": "Struct",
-                "pos": "Pos"}.get(r["family"], r["family"].capitalize())
-        put(f"perm{name}Drop", f"{r['mean_drop']:.3f}")
-    top = imp.sort_values("mean_drop", ascending=False).iloc[0]
-    put("permTopFamily", {"ch": "character $n$-grams", "fw": "function words",
-                          "st": "structural statistics",
-                          "pos": "POS $n$-grams"}.get(top["family"],
-                                                      top["family"]))
-
 agree = read_csv("paradigm_agreement.csv")
 if agree is not None:
-    agree.columns = ["case", "n"]
     d = dict(zip(agree["case"], agree["n"]))
-    total = sum(d.values())
-    n_agree = d.get("agree, both correct", 0) + d.get("agree, both wrong", 0)
+    total = int(sum(d.values()))
+    n_agree = int(d.get("agree, both correct", 0) + d.get("agree, both wrong", 0))
     put("paradigmAgreement", pct(n_agree / max(total, 1)))
     put("bothCorrect", int(d.get("agree, both correct", 0)))
     put("bothWrong", int(d.get("agree, both wrong", 0)))
@@ -204,47 +200,32 @@ if curve is not None:
     lo, hi = curve.iloc[0], curve.iloc[-1]
     put("lenShort", int(lo["tokens"]))
     put("lenLong", int(hi["tokens"]))
-    put("accShortDisc", f"{lo['discriminative']:.3f}")
-    put("accLongDisc", f"{hi['discriminative']:.3f}")
     put("accShortGen", f"{lo['generative']:.3f}")
     put("accLongGen", f"{hi['generative']:.3f}")
-
-# ---------------------------------------------------------------------------
-# Fingerprints: who is most sadhu, who most chalit
-# ---------------------------------------------------------------------------
-fp = T / "style_fingerprints.csv"
-if fp.exists():
-    d = pd.read_csv(fp, index_col=0)
-    if "sadhu_chalit_ratio" in d.columns:
-        s = d["sadhu_chalit_ratio"].sort_values()
-        put("mostChalit", config.AUTHORS.get(s.index[0], {}).get("en", s.index[0]))
-        put("mostSadhu", config.AUTHORS.get(s.index[-1], {}).get("en", s.index[-1]))
+    put("accShortDisc", f"{lo['discriminative']:.3f}")
+    put("accLongDisc", f"{hi['discriminative']:.3f}")
 
 # ---------------------------------------------------------------------------
 # Emit
 # ---------------------------------------------------------------------------
-# LaTeX control sequences are letters only: a name like ``estF1`` parses as
-# ``estF`` followed by a stray ``1``.  Hence ``Fone`` rather than ``F1``.
 KNOWN = [
-    "nAuthors", "nPassages", "nWorks", "nTokens", "passagesPerAuthor",
-    "meanPassageTokens", "chanceAcc", "chancePct", "scanPagesSeen",
-    "scanPagesProofread", "proofreadRate", "booksTouched",
-    "trainFrac", "valFrac", "testFrac", "nTrain", "nVal", "nTest",
+    "CharOrder", "WordOrder", "PassageTokens", "MinPassageTokens", "WtvDim",
+    "TopFunctionWords",
+    "PretrainedModel", "Seed", "nAuthors", "chanceAcc", "chancePct",
+    "nPassages", "nWorks", "nChapters", "nTokens", "meanPassageTokens",
+    "longestSentAuthor", "longestSentLen", "shortestSentAuthor",
+    "shortestSentLen", "nBooks", "nTrainBooks", "nUnseenBooks", "corpusChars",
+    "nOverlapDropped", "nOverlapHits", "overlapRange", "overlapTrainBook",
+    "overlapUnseenBook", "nTrain", "nVal", "nTest", "testPerAuthor",
     "randomSplitAcc", "workSplitAcc", "leakGap", "leakGapAbs",
     "posAcc", "posAccRaw", "posTokens", "posSentences",
-    "bestModel", "bestAcc", "bestAccPct", "bestFone", "bestCI",
-    "permTopFamily", "paradigmAgreement", "bothCorrect", "bothWrong",
-    "discOnlyCorrect", "genOnlyCorrect", "mostSadhu", "mostChalit",
-    "CharOrder", "WordOrder", "FTEpochs", "FTMaxLen", "PretrainedModel",
-    "genCharAcc", "genWordAcc", "svmAllAcc", "svmFuncAcc", "svmStructAcc",
-    "svmPosAcc", "svmCharAcc", "svmScratchMeanAcc", "svmScratchSifAcc",
-    "svmBertAcc", "bertFTAcc", "comboScratchAcc", "comboBertAcc",
-    "silScratchMeanAuthor", "silScratchMeanWork", "silScratchMeanRatio",
-    "silScratchSifAuthor", "silScratchSifWork", "silScratchSifRatio",
-    "silBertAuthor", "silBertWork", "silBertRatio",
-    "permCharDrop", "permFuncDrop", "permStructDrop", "permPosDrop",
-    "lenShort", "lenLong", "accShortDisc", "accLongDisc",
-    "accShortGen", "accLongGen",
+    "bestModel", "bestAcc", "bestAccPct", "bestFone", "nModels",
+    "bestGenModel", "bestGenAcc", "bestDiscModel", "bestDiscAcc",
+    "genCharAcc", "genWordAcc", "svmAllAcc", "svmFuncAcc", "svmStructAcc", "svmPosAcc", "svmCharAcc", "naiveBayesAcc", "naiveBayesCharAcc", "softmaxAcc", "tfidfBaselineAcc", "bertFTAcc", "bilstmAcc", "transScratchAcc",
+    "genCharFone", "genWordFone", "svmAllFone", "svmFuncFone", "svmStructFone", "svmPosFone", "svmCharFone", "naiveBayesFone", "naiveBayesCharFone", "softmaxFone", "tfidfBaselineFone", "bertFTFone", "bilstmFone", "transScratchFone",
+    "paradigmAgreement", "bothCorrect", "bothWrong", "discOnlyCorrect",
+    "genOnlyCorrect", "lenShort", "lenLong", "accShortGen", "accLongGen",
+    "accShortDisc", "accLongDisc",
 ]
 
 lines = ["% Generated by scripts/make_report.py -- do not edit by hand.", ""]

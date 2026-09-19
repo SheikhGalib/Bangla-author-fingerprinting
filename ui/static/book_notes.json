@@ -1,0 +1,218 @@
+{
+  "_README": [
+    "Descriptive notes, overall book summaries, and chapter story synopses shown on /books.html.",
+    "Edit freely: the page reads this file directly at load time without needing rebuilds."
+  ],
+
+  "গল্পগুচ্ছ": {
+    "form": "Short-story collection",
+    "note": "Tagore's collected short fiction. Each chapter here is a separate, self-contained story with its own cast, which is why no character recurs across the book.",
+    "summary": "Tagore's monumental masterpiece of Bengali short fiction, comprising 44 stories in the training set that portray 19th-century rural and semi-urban Bengal. Through ordinary villagers, zamindars, schoolteachers, and vulnerable women, Tagore explores human bonds, innocence, loneliness, social hypocrisies, and quiet tragedies with unmatched lyrical empathy.",
+    "stories_summary": "Features legendary stories across rural Bengal: 'Postmaster' (the poignant bond between an isolated city postmaster and the orphan girl Ratan), 'Kabuliwala' (an Afghan merchant's fatherly love for little Mini), 'Chhuti' (the village boy Phatik's tragic longing for home), 'Shasti' (rural injustice where Chandara accepts the gallows over false guilt), 'Jibito O Mrito' (Kadambini's eerie struggle to prove she is alive), 'Subha' (the silent world of a mute girl), and 'Samapti' (Mrinmoyee's spirited journey into love).",
+    "chapter_stories": {
+      "ব্যবধান": "Land disputes and evolving personal estrangement between maternal-cousin brothers Banamali and Himangshumali.",
+      "রামকানাইয়ের নির্বুদ্ধিতা": "The unbending, simple honesty of Ramkanai who refuses to commit perjury to defend his brother's forged will.",
+      "গিন্নি": "Schoolteacher Shibnath's cruel ridicule of the sensitive young schoolboy Ashu by nicknaming him 'Ginni' (housewife).",
+      "পোস্ট‌্মাস্টার": "The profound, heartbreaking separation between a city-bred postmaster in remote Ulapur and the devoted orphan girl Ratan.",
+      "রাজপথের কথা": "The personified ancient Highway recounts the unending human processions, weddings, and funeral marches it has witnessed across generations.",
+      "ঘাটের কথা": "The personified river landing (Ghat) narrates the tragic life, unspoken love, and river drowning of the ascetic girl Kusum.",
+      "তারাপ্রসন্নের কীর্তি": "The naive, timid author Taraprasanna whose scholarly book is published through his devoted wife Dakshayani's selfless sacrifices.",
+      "মুক্তির উপায়": "Fakirchand seeks spiritual liberation by fleeing to an ashram, only to discover that worldly entanglements follow him.",
+      "দালিয়া": "The romantic reconciliation between the exiled Mughal princess Amina and prince Dalia in the royal court of Arakan.",
+      "ত্যাগ": "Hemanta courageously defies his orthodox Brahmin father's order to abandon his low-caste wife Kusum.",
+      "মেঘ ও রৌদ্র": "The shifting seasons of affection and separation between the educated youth Shashibhushan and the spirited village girl Giribala.",
+      "জয়পরাজয়": "Court poet Shekhar loses a royal poetic contest to rival poet Amarru, but wins the true love and garland of Princess Aparajita.",
+      "স্বর্ণমৃগ": "Baidyanath's ruinous obsession with finding a mythical hidden fortune to appease his demanding wife Mokshada.",
+      "সুভা": "The tender, silent emotional world of Subhashini, a mute village girl whose closest companions are two cows and nature.",
+      "সমাপ্তি": "The mischievous, free-spirited tomboy Mrinmoyee and her tender maturation into love after marrying the scholarly Apurba.",
+      "সমস্যাপূরণ": "Zamindar Krishnagopal secretly protects and settles property for his illegitimate son, resolving a painful moral dilemma.",
+      "শাস্তি": "Rural injustice where farm laborer Chidam falsely blames his wife Chandara for murder, and Chandara chooses death over dishonor.",
+      "রীতিমত নভেল": "A satirical, meta-fictional take contrasting melodramatic historical romances with mundane real-life domestic realities.",
+      "একটা আষাঢ়ে গল্প": "An allegorical fantasy on the Island of Cards (Tasher Desh), where rigid, mechanical rules are disrupted by youthful passion.",
+      "কাবুলিওয়ালা": "The Afghan dry-fruit vendor Rahmat's deep fatherly affection for little Mini in Calcutta, transcending culture and distance.",
+      "প্রায়শ্চিত্ত": "Anathbandhu heartlessly exploits and abandons his devoted wife Bindhyabasini, illustrating painful marital disillusionment.",
+      "বিচারক": "Judge Mohit Mohan realizes with horror that the destitute woman on trial for infanticide is his long-abandoned first love Kshiroda.",
+      "মহামায়া": "Mahamaya's solemn vow of silence and permanent veil following her rescue from sati, reuniting with her lover Rajiblochana.",
+      "দান প্রতিদান": "The complex psychological dynamic of generosity, sacrifice, and pride between wealthy patron Radhamukunda and Rasik.",
+      "ছুটি": "The spirited village boy Phatik Chakrabarti yearns for affection and nature in an unwelcoming Calcutta household, ending in tragedy.",
+      "খাতা": "Child-bride Uma's innocent passion for writing in her beloved notebook, which is confiscated and silenced by her in-laws.",
+      "একটি ক্ষুদ্র পুরাতন গল্প": "A nostalgic narrative reflecting upon faded youthful memories, early friendships, and lost romantic ideals.",
+      "সম্পাদক": "A widowed father edits a newspaper while finding solace in the innocent, playful companionship of his little daughter Prabha.",
+      "জীবিত ও মৃত": "Kadambini, mistaken for dead and deserted at the burning ghat, returns as a supposed ghost and drowns herself to prove she was alive.",
+      "একরাত্রি": "A schoolmaster who sacrificed love for worldly ambition shares a single sublime, flood-stranded night of unspoken connection with Surabala.",
+      "অসম্ভব কথা": "An imaginative grandmother's folklore where pure childhood fantasy playfully defies the rigid logic of the adult world.",
+      "অনধিকার প্রবেশ": "Joykali, an austere Brahmin widow guarding her temple, unexpectedly protects an outcast boy and a helpless piglet from slaughter.",
+      "আপদ": "The wealthy Kiran shelters runaway acrobat boy Nilkanta, whose growing attachment triggers intense domestic jealousy.",
+      "দিদি": "The quiet, unyielding sisterly protectiveness of a woman attempting to shield her helpless younger brother from family exploitation.",
+      "দুরাশা": "In misty Darjeeling, a traveler hears the melancholic tale of a Brahmin woman who devoted her life to loving a dashing Mughal prince from afar.",
+      "প্রতিহিংসা": "A feud of vengeance and wounded pride between rival families that ultimately dissolves into moral emptiness and regret.",
+      "অতিথি": "The restless, wandering youth Tarapada charms a zamindar family but flees the moment domestic bonds threaten his untamed freedom.",
+      "ইচ্ছাপূরণ": "A wish-granting deity swaps the ages of elderly father Subal and playful son Sushil, teaching both the burdens of each stage of life.",
+      "মানভঞ্জন": "Giribala reclaims her self-worth by appearing on the public theater stage, upstaging her unfaithful husband Gopinath's favorite actress.",
+      "ঠাকুরদা": "The impoverished aristocratic grandfather Kailash Babu of Nayanjore, whose gentle pride is tenderly protected by his neighbors.",
+      "উদ্ধার": "Gouri, raised in luxurious comfort, is deserted by her indebted husband Paresh and discovers her own resilient dignity.",
+      "উলুখড়ের বিপদ": "Young maidservant Pyari becomes an unwitting pawn caught in the power struggles and scandals of the master's estate.",
+      "অধ্যাপক": "A proud young academic's intellectual vanity and romantic confusion during visits to his student's household.",
+      "চিত্রকর": "Govinda's inner battle between true artistic devotion and the commercial demands of commissioned portrait painting in Calcutta."
+    }
+  },
+
+  "সাধনা: জীবনের উপলব্ধি": {
+    "form": "Essays / philosophical lectures",
+    "note": "Philosophical prose rather than fiction. Delivered as lectures at Harvard and Oxford, its vocabulary focuses on abstract spiritual realization rather than narrative characters.",
+    "summary": "Based on Tagore's renowned 1912-1913 lectures at Harvard and Oxford, this work interprets the ancient spiritual wisdom of the Upanishads for the modern world. Rather than retreating into ascetic dogma, Tagore presents a joyful, humanist vision where the individual soul discovers fulfillment through cosmic harmony, love, purposeful action, and the celebration of beauty.",
+    "stories_summary": "Nine philosophical discourses spanning: ancient India's forest civilization and its harmony with nature ('ব্যক্তির সঙ্গে বিশ্বের সম্বন্ধ'), awakening soul consciousness beyond the ego ('আত্মচেতনা'), evil as a transient stage toward moral perfection ('অশুভের সমস্যা'), selfhood and cosmic oneness ('ব্যক্তিসত্তার সমস্যা'), love as the supreme unifier ('প্রেমে উপলব্ধি'), joyful selfless service ('কর্মে উপলব্ধি'), beauty as divine truth ('সৌন্দর্যের উপলব্ধি'), and unity with Brahman ('অসীমের উপলব্ধি').",
+    "chapter_stories": {
+      "অনুবাদকের নিবেদন : সাধনা প্রসঙ্গে": "Historical background on Tagore's Nobel prize recognition and the global impact of his spiritual lectures at Harvard and Oxford.",
+      "ব্যক্তির সঙ্গে বিশ্বের সম্বন্ধ": "Explains how ancient Indian civilization grew in forest hermitages, cultivating harmony with nature rather than conquest.",
+      "আত্মচেতনা": "Awakening the higher spiritual self beyond material ego, recognizing humanity's innate kinship with the divine cosmos.",
+      "অশুভের সমস্যা": "How evil, pain, and imperfection are not permanent realities, but necessary developmental stages in moral growth and self-realization.",
+      "ব্যক্তিসত্তার সমস্যা": "Reconciling the unique individual human ego with universal cosmic consciousness without losing personal dignity.",
+      "প্রেমে উপলব্ধি": "Love as the boundless bridge that overcomes self-centered boundaries and unites the finite human soul with the infinite divine.",
+      "কর্মে উপলব্ধি": "The joy of selfless, purposeful work and creative labor as the true expression of spiritual freedom and universal law.",
+      "সৌন্দর্যের উপলব্ধি": "How perceiving universal beauty liberates mankind from utilitarian selfishness into the realm of pure, unselfish joy.",
+      "অসীমের উপলব্ধি": "Achieving the supreme fulfillment of human life through conscious, loving union with the Infinite (Brahman)."
+    }
+  },
+
+  "রহস্য সমগ্র": {
+    "form": "Anthology (mystery, supernatural & suspense)",
+    "note": "A compilation of Tagore's suspense and supernatural fiction, held out as his test set. Reprints that overlapped with গল্পগুচ্ছ were dropped from training to maintain complete test purity.",
+    "summary": "A captivating anthology gathering Tagore's most celebrated supernatural, gothic, psychological, and detective stories. Probing the dark, enigmatic recesses of the human psyche, the tales explore haunted palaces, ghostly confessions, obsessive greed, eerie midnight visitations, and satirical detective investigations.",
+    "stories_summary": "Includes iconic eerie and suspense masterpieces: 'Kankal' (a skeleton tells her tale of youth, romance, and murder), 'Kshudhita Pashan' (a haunted Mughal palace intoxicating a visitor with ghosts of courtly decadence), 'Manihara' (a woman's chilling obsession with her jewelry beyond death), 'Nishithe' (a widower haunted by the mocking laughter of his dead first wife), 'Guptodhon' (a maddening quest for buried ancestral treasure), 'Detective' (a detective comically tracking a harmless lover), and 'Aparichita' (a proud bride defying dowry greed).",
+    "chapter_stories": {
+      "কঙ্কাল": "A human skeleton hanging in a medical student's bedroom comes alive at midnight to recount her tragic youth, secret romance, and fatal poisoning.",
+      "ডিটেক্‌টিভ": "A self-important police detective obsessed with cracking political conspiracies comically misinterprets an emotional young lover's diary entries.",
+      "গুপ্তধন": "Mrityunjay's maddening, secretive obsession with deciphering an ancient cryptic parchment to unearth ancestral gold hidden in subterranean caves.",
+      "খোকাবাবুর প্রত্যাবর্তন": "The faithful servant Raicharan makes the supreme, heartbreaking sacrifice of his own son to replace his deceased master's lost child.",
+      "সম্পত্তি সমর্পণ": "Miserly moneylender Yajnath Kundu entombs a neighborhood child inside a locked underground vault to guard his hoard, meeting tragic irony.",
+      "নিশীথে": "A widower remarries, only to be tormented in midnight hours by the suffocating phantom presence and mocking laughter of his dead first wife.",
+      "ক্ষুধিত পাষাণ": "A lonely tax collector residing in an ancient Mughal marble palace at Barich is drawn into intoxicating, supernatural visions of past courtly life.",
+      "পুত্রযজ্ঞ": "Baidyanath's obsessive ritualistic pursuit of fathering a male heir, exploring the tension between orthodox superstition and true love.",
+      "মণিহারা": "Manimalika's chilling, pathological obsession with her gold ornaments, which she guards against her adoring husband even beyond death.",
+      "মাস্টারমশায়": "The upright, selfless private tutor Haralal's devoted affection for his wealthy pupil Venugopal, culminating in bitter betrayal and heartbreak.",
+      "অপরিচিতা": "The empowered bride Kalyani and her resolute father boldly break off marriage with a spineless groom whose uncle demands excessive dowry.",
+      "বদনাম": "Police Inspector Vijay investigates an aristocratic household theft, encountering moral complexities that transcend simple legal boundaries."
+    }
+  },
+
+  "কুহেলিকা": {
+    "form": "Novel (Political & Revolutionary)",
+    "note": "One of Nazrul's major novels. A single continuous narrative set in Bengal's armed revolutionary freedom movement, featuring continuous recurring characters.",
+    "summary": "Nazrul's impassioned, politically charged novel portraying the secret underground armed revolutionary youth of colonial Bengal fighting to overthrow British imperial rule. The narrative dramatizes the fierce ideological battle between severe ascetic revolutionary sacrifice and the natural human longing for romantic love, companionship, and emotional vulnerability.",
+    "stories_summary": "Follows Jahangir, a spirited young man from Comilla who joins an underground militant group led by Pramatta and Bajrapani. Taught by his peers that women are an illusion and dangerous distraction ('নারী কুহেলিকা'), Jahangir is torn between the pure, loyal love of his traditional cousin Tahmina and the rebellious, fiery Christian woman Champa (Radharani). Sacrificing family, wealth, and romance, Jahangir embraces arrest and life deportation to the Andaman Cellular Jail.",
+    "chapter_stories": {
+      "কুহেলিকা – ০১": "Young poet Harun declares 'Woman is an illusion' (নারী কুহেলিকা), introducing the debate on love versus revolutionary detachment.",
+      "কুহেলিকা – ০২": "Introduction to Jahangir, an idealistic student from Comilla, and his contrasting circle of university friends in Calcutta.",
+      "কুহেলিকা – ০৩": "The rising tide of the Swadeshi and armed anti-British revolutionary movement begins sweeping through Bengal's student circles.",
+      "কুহেলিকা – ০৪": "Jahangir formally pledges his life to the revolutionary cause following the sudden demise of his father, Khan Bahadur Farrokh.",
+      "কুহেলিকা – ০৫": "Summer holidays arrive; students scatter across the countryside as revolutionary missions begin taking shape under cover.",
+      "কুহেলিকা – ০৬": "Jahangir and Harun arrive in the dark night at Suri in Birbhum, planning clandestine contacts with local underground workers.",
+      "কুহেলিকা – ০৭": "Morning breaks in Birbhum; early conversations illuminate the ideological rift between romantic poetry and armed struggle.",
+      "কুহেলিকা – ০৮": "Jahangir awakens early in the summer heat, confronting his inner restlessness and yearning for purpose.",
+      "কুহেলিকা – ০৯": "Sudden seasonal storms mirror the violent upheavals approaching Jahangir's family and personal life.",
+      "কুহেলিকা – ১০": "Jahangir journeys by bullock cart through rural trails, reflecting on village poverty and the heavy cost of national awakening.",
+      "কুহেলিকা – ১১": "The novel portrays Jahangir's deepening empathy with common laborers and his growing detachment from aristocratic privilege.",
+      "কুহেলিকা – ১২": "Jahangir returns to Calcutta to find urgent telegrams from his estate, signaling family crises and surveillance by colonial police.",
+      "কুহেলিকা – ১৩": "Jahangir's mother weeps upon seeing his changed, austere demeanor, pleading with him to marry his devoted cousin Tahmina.",
+      "কুহেলিকা – ১৪": "Troubled dreams plague Jahangir as the emotional pulls of domestic maternal love clash with his revolutionary vows.",
+      "কুহেলিকা – ১৫": "At Bardhaman railway station, Jahangir encounters Maulvi Saheb and makes narrow escapes from police spies trailing him.",
+      "কুহেলিকা – ১৬": "Bhuni (Tahmina) confronts her shattered hopes, learning that Jahangir's heart belongs to a far more dangerous, selfless mission.",
+      "কুহেলিকা – ১৭": "Jahangir observes ascetic Naga sannyasis at the station, meditating on the spiritual dimensions of sacrifice in Indian tradition.",
+      "কুহেলিকা – ১৮": "British colonial police with heavy boots raid the train at dawn in Bardhaman, surrounding Jahangir and his comrades.",
+      "কুহেলিকা – ১৯": "Jahangir's mother and Harun search desperately across railway platforms, realizing the colonial net has closed around Jahangir and Champa.",
+      "কুহেলিকা – ২০ (শেষ)": "Jahangir, Bajrapani, and comrades are sentenced to deportation to the Andaman Cellular Jail; Jahangir accepts exile with resolute dignity."
+    }
+  },
+
+  "রিক্তের বেদন": {
+    "form": "Short-story collection",
+    "note": "Nazrul's celebrated short fiction collection written in emotive, lyrical prose. Explores battlefield trauma, bohemian wanderlust, and poignant romantic sacrifice.",
+    "summary": "A collection of eight emotive, highly lyrical stories written in the early 1920s. Reflecting Nazrul's own turbulent youth as a soldier in the Bengal Regiment and his boundless empathy for the marginalized, the stories span North-West frontier romances, trench confessions, spiritual mysticism, and the silent grief of women broken by social and marital tragedy.",
+    "stories_summary": "Spans diverse narrative landscapes: 'Rikter Bedan' (a passionate hymn to patriotic self-sacrifice), 'Boundeler Atmakahini' (humorous, candid confessions of a wayward Bengali soldier), 'Meher-Negar' (an exotic romance across social barriers in Peshawar), 'Sanjher Tara' (a tender seaside encounter under the evening star), 'Rakshushi' (a fierce village woman branded as an omen of destruction), 'Salek' (a wandering dervish who stirs a city's conscience), 'Swamihara' (a grief-stricken widow's heartbreaking lament), and 'Duranta Pathik' (an allegorical salute to the fearless traveler).",
+    "chapter_stories": {
+      "রিক্তের বেদন": "A passionate confessional monologue celebrating patriotic sacrifice and the sublime beauty of giving up everything for the motherland.",
+      "বাউন্ডেলের আত্মকাহিনি": "The colorful, humorous, and heartfelt recollections of an unruly Bengali soldier serving in the 49th Bengal Regiment.",
+      "মেহের-নেগার": "A tender, tragic love story set in the scenic orchards of Peshawar, depicting affection that defies social rank and family expectations.",
+      "সাঁঝের তারা": "A nostalgic romantic encounter on the shores of the Arabian Sea under the twilight glow of the evening star.",
+      "রাক্ষুসি": "A raw, intense village narrative focused on a passionate, defiant woman feared and demonized by villagers as a destructive force.",
+      "সালেক": "A mysterious wandering dervish arrives in town, captivating crowds and prompting deep soul-searching among ordinary citizens.",
+      "স্বামীহারা": "The heartbreaking lament of a grief-stricken young widow crying out for solace and companionship in a desolate world.",
+      "দুরন্ত পথিক": "A symbolic, lyrical hymn celebrating the fearless, undaunted traveler who braves a path of thorns toward ultimate liberation."
+    }
+  },
+
+  "ব্যথার দান": {
+    "form": "Short-story collection (Epistolary romance & tragedy)",
+    "note": "Nazrul's very first published book (1922), held out as his unseen test book. Composed of six intense, romantic, and tragic epistolary stories written while serving in the army.",
+    "summary": "Published in 1922 while Nazrul was barely twenty-three, this foundational work features six intensely emotional, epistolary stories written during his army enlistment in Karachi. Packed with high romanticism, battlefield trauma from World War I, and deep spiritual longing, each story explores unrequited love, noble self-abnegation, and patriotic devotion.",
+    "stories_summary": "Contains six deeply expressive narratives: 'Byathar Dan' (Dara returns after years of exile to his motherland Gulistan, seeking solace for his lost love Shanta), 'Hena' (written amidst artillery fire in the WWI Verdun trenches as soldier Sohrab yearns for the Afghan maiden Hena), 'Badal Borishone' (a torrential monsoon reflecting the agony of separated lovers), 'Ghumer Ghore' (a haunting dreamscape in an African Sahara desert camp), 'Otripto Kamona' (twilight reflections on unfulfilled domestic warmth), and 'Rajbondir Chithi' (a defiant letter written from Presidency Jail).",
+    "chapter_stories": {
+      "ব্যথার দান": "Dara returns to his beloved motherland Gulistan after years of exile, longing for his lost love Shanta and embracing the earth in solace.",
+      "হেনা": "Written from the blood-soaked Verdun trenches in France during WWI, where soldier Sohrab longs for the Afghan maiden Hena amidst raining shells.",
+      "বাদল বরিষনে": "An evocative monsoon portrait where the rhythm of torrential rain mirrors the unbearable emotional pangs of separated lovers.",
+      "ঘুমের ঘোরে": "A poignant dream sequence in an army encampment near an African Sahara oasis, weaving military discipline with memories of lost love.",
+      "অতৃপ্ত কামনা": "A solitary traveler's melancholy twilight reflections upon seeing warm domestic hearths, mourning the unfulfilled love in his destiny.",
+      "রাজবন্দীর চিঠি": "A defiant, deeply moving farewell letter written from Presidency Jail, Calcutta on the eve of freedom, celebrating comrades and liberty."
+    }
+  },
+
+  "হিমু": {
+    "form": "Novel (Himu series debut)",
+    "note": "The inaugural novel introducing Humayun Ahmed's iconic protagonist Himu. Modern colloquial Dhaka Bangla, heavy dialogue, and the shortest sentences in the corpus.",
+    "summary": "The groundbreaking 1993 novel that introduced Bangladesh's most iconic literary character: Himu (Himalay). Born of an eccentric father who killed his wife to raise his son free from worldly attachments and logic, Himu roams the streets of Dhaka barefoot in a yellow pocketless punjabi. Operating on intuition, anti-logic, and detached kindness, he touches lives across urban high-society and destitute slums alike.",
+    "stories_summary": "The novel establishes Himu's unique philosophy and follows his eccentric exploits across Dhaka: meeting psychiatrist Irtajul Karim, eating peanuts on footpaths with elderly strangers, bewildering police officers, receiving letters from the wealthy and deeply infatuated Rupa whose advances he wistfully resists, and resolving family crises for troubled acquaintances (like Yaar and Morshed) through uncanny intuitive perception.",
+    "chapter_stories": {
+      "০১. কি নাম বললেন আপনার": "Introduction to Himu (Himalay), his pocketless yellow punjabi, and his father's eccentric experiment to raise a modern saint.",
+      "০২. ঘরের ভেতর দুটা চিঠি": "Himu receives two letters on his room floor, including an elegant one from the wealthy, deeply devoted Rupa.",
+      "০৩. ধুম-ধুম করে দরজায় কিল পড়ছে": "Midnight knocks disturb Himu's sleep, demonstrating his calm, anti-logical perspective on sudden life interruptions.",
+      "০৪. বড় রাস্তার ফুটপাতে": "Himu sits barefoot on a Dhaka pavement sharing peanuts with an elderly gentleman, making sharp observations on urban existence.",
+      "০৫. নীতুর সাইকিয়াট্রিস্ট": "A visit to psychiatrist Irtajul Karim regarding Neetu, contrasting clinical psychoanalysis with Himu's carefree intuition.",
+      "০৬. মোরশেদ সাহেব": "Encounter with Morshed Saheb at dusk, dissecting the quiet domestic emptiness of prosperous middle-class households.",
+      "০৭. এষা দরজা খুলে তাকিয়ে রইল": "Himu visits Esha's household, unraveling hidden tensions and startling everyone with casually accurate psychological deductions.",
+      "০৮. টেলিফোন করার জায়গা পাচ্ছি না": "Himu wanders through Dhaka trying to find an open telephone, engaging with quirky pharmacy and computer store staff.",
+      "০৯. নীতুর একটি চিঠি এসেছে": "Neetu sends a typed English letter detailing her emotional turmoil, seeking Himu's enigmatic guidance.",
+      "১০. রাত এগারোটায় ইয়াদের সন্ধানে": "A midnight expedition to the Mirpur C&B warehouse to track down the troubled, wealthy young man Yaar.",
+      "১১. রূপার চিঠি এসেছে": "Rupa's tender letter arrives; Himu muses over her steadfast devotion which he deliberately resists to maintain his wandering life.",
+      "১২. ইয়াদের বাড়ি সব সময় আলোয় ঝলমল করে": "Visiting Yaar's lavish, brightly lit home, where Himu uses intuitive remarks to pierce through family pretenses.",
+      "১৩. আমি বাস করছি অন্ধকারে এবং আলোয়": "Himu's philosophical monologue on existing in the twilight zone between logic and dreams before walking off into the Dhaka night."
+    }
+  },
+
+  "বিপদ": {
+    "form": "Mystery & psychological novella (Misir Ali series)",
+    "note": "Short modern psychological fiction featuring Professor Misir Ali. High dialogue and modern urban colloquial style.",
+    "summary": "A tense, fast-paced psychological mystery featuring Humayun Ahmed's rationalist investigator, Professor Misir Ali. The story revolves around an accomplished shipping executive who suddenly succumbs to paralyzing panic, dread of black cats, and superstitious terror. Misir Ali applies rigorous psychological deduction to unmask the hidden guilt and human deception behind the looming 'danger'.",
+    "stories_summary": "Afsaruddin, a high-ranking shipping company officer, experiences sudden hallucinations and delusions that death is hunting him. Confining himself to a pitch-dark room with drawn curtains and terrified of cats, he reaches out for help. Called in to solve the puzzle, Professor Misir Ali patiently records behavioral clues in his thick notebook and dismantles superstitious panic with brilliant rational insight.",
+    "chapter_stories": {
+      "বিপদ – ১": "Shipping executive Afsaruddin experiences sudden, inexplicable panic attacks and paranoid dread of unseen dangers.",
+      "বিপদ – ২": "Afsaruddin consults a psychiatrist, detailing his growing terror of mysterious black cats and ominous impending death.",
+      "বিপদ – ৩": "Returning to his office, Afsaruddin finds ordinary workplace paperwork overwhelming as paranoid delusions take deeper hold.",
+      "বিপদ – ৪": "Afsaruddin barricades himself in a pitch-black room with drawn curtains, paralyzed by superstitious terror and dread.",
+      "বিপদ – ৫": "Professor Misir Ali enters the investigation, meticulously recording behavioral clues about the cat obsession in his notebook.",
+      "বিপদ – ৬": "Misir Ali visits Afsaruddin's desolate home, applying cool deductive logic to expose the trauma and human truth behind the 'danger'."
+    }
+  },
+
+  "হিমুর হাতে কয়েকটি নীলপদ্ম": {
+    "form": "Novel (Himu series)",
+    "note": "Held out as Humayun Ahmed's test book. Same protagonist and conversational register as হিমু, providing a fair but strictly unseen test of voice recognition.",
+    "summary": "One of the most poetic and captivating novels in the Himu series. Set against a bright Dhaka morning, Himu sets out on an aimless yet symbolic quest across the city to find rare 'blue lotuses' (নীলপদ্ম) requested by Rupa. His journey weaves through high-society mansions, street eccentrics, hospital corridors, and police lockups, exploring human mortality, love, and spiritual detachment.",
+    "stories_summary": "Triggered by Rupa's whimsical wish for blue lotuses, Himu wanders Dhaka's streets. He encounters Asadullah Saheb in a second-hand bookshop and gets entangled with his wealthy, proud daughter Maria; comforts a dying acquaintance named Asgar Saheb; easily confuses and charms interrogating police officers; and navigates the delicate emotional tug-of-war between Maria's fascination and Rupa's unwavering love before returning to his barefoot wanderings.",
+    "chapter_stories": {
+      "হিমুর হাতে কয়েকটি নীলপদ্ম – ১": "Himu awakens to a startlingly azure Dhaka morning; Rupa makes a whimsical, impossible wish for fresh blue lotuses.",
+      "হিমুর হাতে কয়েকটি নীলপদ্ম – ২": "Himu wanders the morning streets, playfully deflecting identity questions while contemplating the mysteries of human naming.",
+      "হিমুর হাতে কয়েকটি নীলপদ্ম – ৩": "A police patrol car drops Himu at Karwan Bazar, where the officers are left puzzled by his courteous, unbothered attitude.",
+      "হিমুর হাতে কয়েকটি নীলপদ্ম – ৪": "Himu ironically meditates on the concept of 'hero's welcome' as he visits acquaintances and observes bourgeois domestic life.",
+      "হিমুর হাতে কয়েকটি নীলপদ্ম – ৫": "Reflections on poetic literary tropes like 'bird-sung dawns' contrasted against the unvarnished realities of the city.",
+      "হিমুর হাতে কয়েকটি নীলপদ্ম – ৬": "Himu's uncle dispatches an urgent telegraphic letter through an office peon, demanding Himu's immediate intervention in a domestic crisis.",
+      "হিমুর হাতে কয়েকটি নীলপদ্ম – ৭": "Himu meets Asadullah Saheb at a vintage bookstore and enters the opulent, turbulent household of his daughter Maria.",
+      "হিমুর হাতে কয়েকটি নীলপদ্ম – ৮": "Himu meets Asgar Saheb, recognizing the poignant, unmistakable shadow of impending death in the elderly gentleman's eyes.",
+      "হিমুর হাতে কয়েকটি নীলপদ্ম – ৯": "A battle of wits with Maria, whose sharp, intellectual skepticism attempts to demystify Himu's anti-logical detachment.",
+      "হিমুর হাতে কয়েকটি নীলপদ্ম – ১০": "Himu is detained in a police lockup, nonchalantly disarming the duty officer and predicting unexpected turns of events.",
+      "হিমুর হাতে কয়েকটি নীলপদ্ম – ১১": "The elusive search for blue lotuses continues through eccentric contacts, night alleys, and curious urban encounters.",
+      "হিমুর হাতে কয়েকটি নীলপদ্ম – ১২": "Maria's growing emotional curiosity challenges Himu's aloofness, set against Rupa's quiet, enduring devotion.",
+      "হিমুর হাতে কয়েকটি নীলপদ্ম – ১৩": "Himu brings resolution to the crisis, leaves symbolic blue lotuses for Rupa, and vanishes into his solitary nocturnal journey."
+    }
+  }
+}

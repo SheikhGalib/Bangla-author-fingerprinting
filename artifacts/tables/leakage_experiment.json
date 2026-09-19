@@ -1,5 +1,9 @@
 {
-  "random_split_accuracy": 0.993234100135318,
-  "work_disjoint_accuracy": 0.7865168539325843,
-  "leakage_inflation": 0.20671724620273368
+  "model": "SVM over all stylometric families",
+  "work_disjoint_accuracy": 0.9683426443202979,
+  "random_split_accuracy": 1.0,
+  "leakage_inflation": 0.03165735567970207,
+  "n_train_random": 1647,
+  "n_test_random": 549,
+  "note": "the random split lets passages from a held-out book appear in training; the gap is the part of the score that is topic, not style"
 }

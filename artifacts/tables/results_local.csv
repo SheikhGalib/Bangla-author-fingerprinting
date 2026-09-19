@@ -1,0 +1,12 @@
+model,family,accuracy,macro_f1,notes
+Kneser-Ney LM (char),generative,0.9757914338919925,0.9757032947953176,"order 5, 7s"
+Kneser-Ney LM (word),generative,0.9739292364990689,0.97385215183167,"order 3, 1s"
+SVM (all stylometric),discriminative,0.9702048417132216,0.9699952625024671,4 families
+TF-IDF words + SVM,baseline,0.9683426443202979,0.9681556545234189,topic-sensitive by design
+SVM (charngram only),ablation,0.9683426443202979,0.9681022253276588,
+Naive Bayes (word BoW),discriminative,0.9664804469273743,0.9661146558782853,"20000 word features, alpha=0.2"
+Softmax regression (stylometric),discriminative,0.9646182495344506,0.9642831540467834,"4208 features, 300 epochs"
+Naive Bayes (char n-gram),reference,0.9441340782122905,0.9440255540812816,"3000 char features, alpha=0.2"
+SVM (structural only),ablation,0.8994413407821229,0.8993071324070879,
+SVM (funcword only),ablation,0.8919925512104283,0.8922917768042605,
+SVM (posngram only),ablation,0.7374301675977654,0.7382958649485616,

@@ -1,6 +1,4 @@
-,author,train,val,test,works_train,works_val,works_test
-abanindranath,Abanindranath Tagore,369,97,125,3,1,1
-bankim,Bankim Chandra Chattopadhyay,365,90,136,3,1,2
-sarat,Sarat Chandra Chattopadhyay,377,59,155,2,1,2
-tagore,Rabindranath Tagore,355,89,147,6,5,3
-vidyasagar,Ishwar Chandra Vidyasagar,355,87,149,5,4,3
+author,train,val,test,test_book
+Rabindranath Tagore,866,169,179,রহস্য সমগ্র
+Kazi Nazrul Islam,324,70,179,ব্যথার দান
+Humayun Ahmed,193,37,179,হিমুর হাতে কয়েকটি নীলপদ্ম

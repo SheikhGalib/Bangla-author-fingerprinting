@@ -94,26 +94,95 @@ def split_by_work(
                  test=buckets["test"])
 
 
+def split_by_role(
+    passages: list[Passage],
+    val_fraction: float = config.VAL_FRACTION,
+    seed: int = config.SEED,
+) -> Split:
+    """Split using the roles the corpus was collected under.
+
+    This is the splitter the study uses.  :func:`split_by_work` has to *infer*
+    a work-disjoint partition from whatever books happened to be crawled; here
+    the partition was decided before a single page was downloaded.  One book
+    per author was designated ``unseen`` and becomes the test set entire, so
+    work-disjointness is a property of the corpus rather than a claim about the
+    code.  It is also the only arrangement a reader can check without running
+    anything: the held-out books are the files in ``corpus/unseen/``.
+
+    Validation comes out of the training books and is held out **by whole
+    chapter**.  A passage-level validation split would put two halves of one
+    chapter on either side, and early stopping would then be tuned against
+    text the model had effectively seen.  Chapters are the finest unit that
+    avoids this, and using them keeps all three splits leak-free under the same
+    rule.
+    """
+    rng = random.Random(seed)
+    test = [p for p in passages if p.role == "unseen"]
+    pool = [p for p in passages if p.role != "unseen"]
+
+    train: list[Passage] = []
+    val: list[Passage] = []
+    by_author: dict[str, list[Passage]] = defaultdict(list)
+    for p in pool:
+        by_author[p.author].append(p)
+
+    for author in sorted(by_author):
+        ps = by_author[author]
+        by_chapter: dict[tuple[str, str], list[Passage]] = defaultdict(list)
+        for p in ps:
+            by_chapter[(p.work, p.chapter)].append(p)
+
+        # Largest chapters first, each to whichever side is furthest below
+        # quota — the same heuristic split_by_work uses, one level down.
+        names = sorted(by_chapter)
+        rng.shuffle(names)
+        names.sort(key=lambda c: -len(by_chapter[c]))
+        quota = val_fraction * len(ps)
+        n_val = 0
+        for c in names:
+            block = by_chapter[c]
+            if n_val + len(block) / 2 <= quota:
+                val += block
+                n_val += len(block)
+            else:
+                train += block
+
+    return Split(train=train, val=val, test=test)
+
+
 def leakage_report(split: Split) -> dict:
-    """Verify no work — and no passage — appears in more than one split."""
-    sets = {
-        name: {p.work for p in part}
-        for name, part in (("train", split.train), ("val", split.val),
-                           ("test", split.test))
-    }
-    ids = {
-        name: {p.passage_id for p in part}
-        for name, part in (("train", split.train), ("val", split.val),
-                           ("test", split.test))
-    }
-    overlaps = {}
-    for a, b in (("train", "val"), ("train", "test"), ("val", "test")):
-        overlaps[f"{a}|{b}:works"] = sorted(sets[a] & sets[b])
-        overlaps[f"{a}|{b}:passages"] = len(ids[a] & ids[b])
-    clean = all(
-        (not v if isinstance(v, list) else v == 0) for v in overlaps.values()
+    """Check each split boundary against the rule that actually governs it.
+
+    The three boundaries are not held to the same standard, and conflating them
+    produces a false alarm.
+
+    * ``train|test`` and ``val|test`` must be **work-disjoint**: the test set is
+      three whole books nothing was fitted on, and a shared book here would
+      invalidate every reported number.
+    * ``train|val`` is **chapter-disjoint** by construction and shares books on
+      purpose — validation is carved out of the training books.  Demanding
+      work-disjointness of it would report a leak where the design is sound.
+
+    No passage may appear twice anywhere, under any of the three.
+    """
+    parts = (("train", split.train), ("val", split.val), ("test", split.test))
+    works = {name: {p.work for p in part} for name, part in parts}
+    chapters = {name: {(p.work, p.chapter) for p in part} for name, part in parts}
+    ids = {name: {p.passage_id for p in part} for name, part in parts}
+
+    checks: dict[str, object] = {}
+    for a, b in (("train", "test"), ("val", "test")):
+        checks[f"{a}|{b}:shared_works"] = sorted(works[a] & works[b])
+    checks["train|val:shared_chapters"] = sorted(
+        f"{w} :: {c}" for w, c in chapters["train"] & chapters["val"]
     )
-    return {"clean": clean, "overlaps": overlaps}
+    for a, b in (("train", "val"), ("train", "test"), ("val", "test")):
+        checks[f"{a}|{b}:shared_passages"] = len(ids[a] & ids[b])
+
+    clean = all(
+        (v == 0 if isinstance(v, int) else not v) for v in checks.values()
+    )
+    return {"clean": clean, "overlaps": checks}
 
 
 def describe(split: Split) -> dict:

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Books — Bangla Authorship Attribution</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen font-sans">
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <a href="/" class="w-9 h-9 rounded-lg bg-slate-200 hover:bg-slate-300 flex items-center justify-center text-slate-700 font-bold" title="Back">←</a>
+      <div>
+        <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">The Books</h1>
+        <p class="text-xs text-slate-500">What is in the corpus, and what the numbers say about it</p>
+      </div>
+    </div>
+    <nav class="flex gap-2 text-xs">
+      <a href="/" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 font-medium">Demo</a>
+      <a href="/methods.html" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 font-medium">Methods &amp; code</a>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-8">
+
+  <div class="bg-white border border-slate-200 rounded-xl p-5 mb-8 shadow-sm">
+    <h2 class="text-lg font-bold text-slate-900 mb-2">How to read this page</h2>
+    <p class="text-sm text-slate-600 mb-3">
+      Nine books, three per author. For each book you get an <strong>overall book summary</strong>, a breakdown of its <strong>stories and narrative arc</strong>, and a <strong>chapter-by-chapter directory</strong>, followed by stylometric measurements <strong>computed directly from the text</strong>.
+    </p>
+    <div class="grid sm:grid-cols-3 gap-3 text-xs">
+      <div class="bg-slate-50 rounded-lg p-3">
+        <p class="font-bold text-slate-800 mb-1">Recurring names</p>
+        <p class="text-slate-600">Words that are frequent in this book, rare in the other
+        eight, and spread across at least three chapters. Bangla has no capital letters,
+        so names are found by behaviour, not spelling.</p>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3">
+        <p class="font-bold text-slate-800 mb-1">Distinctive words</p>
+        <p class="text-slate-600">Highest TF-IDF against the other eight books: the
+        vocabulary that sets this book apart, rather than just its commonest words.</p>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3">
+        <p class="font-bold text-slate-800 mb-1">Style numbers</p>
+        <p class="text-slate-600">A few of the 29 structural measurements the SVM uses.
+        Sentence length and dialogue rate alone separate the three authors.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="author-sections" class="space-y-10">
+    <p class="text-sm text-slate-400">Computing analytics from the corpus…</p>
+  </div>
+
+</main>
+
+<footer class="max-w-6xl mx-auto px-4 py-8 text-xs text-slate-400 border-t border-slate-200 mt-8">
+  Notes describe the form of each book; all statistics are recomputed from
+  <code>corpus/</code> every time this page loads.
+</footer>
+
+<script src="/books.js"></script>
+</body>
+</html>

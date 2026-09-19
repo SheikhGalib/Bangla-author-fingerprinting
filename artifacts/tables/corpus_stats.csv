@@ -1,6 +1,4 @@
-author,years,works,passages,tokens,mean_passage_tokens
-Abanindranath Tagore,1871-1951,5,591,137628,232.87309644670052
-Bankim Chandra Chattopadhyay,1838-1894,6,591,135807,229.79187817258884
-Sarat Chandra Chattopadhyay,1876-1938,5,591,135197,228.75972927241963
-Rabindranath Tagore,1861-1941,14,591,138097,233.66666666666666
-Ishwar Chandra Vidyasagar,1820-1891,12,591,135878,229.91201353637902
+author,author_bn,years,works,chapters,passages,tokens,mean_passage_tokens,mean_sent_len
+Rabindranath Tagore,রবীন্দ্রনাথ ঠাকুর,1861-1941,3,65,1214,160926,132.55848434925866,19.261910417907913
+Kazi Nazrul Islam,কাজী নজরুল ইসলাম,1899-1976,3,34,573,74020,129.17975567190226,14.390679402952268
+Humayun Ahmed,হুমায়ূন আহমেদ,1948-2012,3,32,409,51101,124.94132029339853,7.823912026874431

@@ -84,3 +84,15 @@ desktop.ini
 .idea/
 *.swp
 *~
+
+# Plain-text corpus and scraper cache.  Third-party book text collected for
+# coursework: kept local, never committed and never published.
+corpus/
+data/raw/ebangla_cache/
+data/kaggle_stage/
+artifacts/kaggle/
+
+# Secrets — KAGGLE_API_TOKEN lives here.
+.env
+.env.*
+!.env.example

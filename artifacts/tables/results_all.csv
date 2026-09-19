@@ -1,0 +1,15 @@
+model,family,accuracy,macro_f1,notes
+BanglaBERT (fine-tuned),discriminative / pretrained transformer,0.9925512104283054,0.9925502804049485,Kaggle T4 GPU; val_acc=1.0
+Kneser-Ney LM (char),generative,0.9757914338919924,0.9757032947953176,"order 5, 7s"
+Kneser-Ney LM (word),generative,0.9739292364990688,0.97385215183167,"order 3, 1s"
+SVM (all stylometric),discriminative,0.9702048417132216,0.9699952625024671,4 families
+SVM (charngram only),ablation,0.968342644320298,0.9681022253276588,
+TF-IDF words + SVM,baseline,0.968342644320298,0.9681556545234188,topic-sensitive by design
+Naive Bayes (word BoW),discriminative,0.9664804469273744,0.9661146558782852,"20000 word features, alpha=0.2"
+Softmax regression (stylometric),discriminative,0.9646182495344506,0.9642831540467834,"4208 features, 300 epochs"
+Naive Bayes (char n-gram),reference,0.9441340782122905,0.9440255540812816,"3000 char features, alpha=0.2"
+Transformer (from scratch),discriminative / transformer from scratch,0.9180633147113594,0.9184240221049972,Kaggle T4 GPU; val_acc=0.9927536231884058
+SVM (structural only),ablation,0.8994413407821229,0.8993071324070879,
+SVM (funcword only),ablation,0.8919925512104283,0.8922917768042605,
+BiLSTM (from scratch),discriminative / recurrent,0.8435754189944135,0.8457229037249668,Kaggle T4 GPU; val_acc=0.9710144927536232
+SVM (posngram only),ablation,0.7374301675977654,0.7382958649485616,

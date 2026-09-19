@@ -1,6 +1,6 @@
-,0
-"agree, both correct",510
-"agree, both wrong",27
-"disagree, discriminative correct",56
-"disagree, generative correct",84
-"disagree, neither correct",35
+case,n
+"agree, both correct",513
+"agree, both wrong",4
+"disagree, both wrong",1
+"disagree, discriminative correct",8
+"disagree, generative correct",11

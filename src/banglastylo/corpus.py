@@ -34,12 +34,24 @@ MIN_CHARS_PER_WORK = 3_000
 
 @dataclass
 class Passage:
+    """One attribution unit.
+
+    ``work`` is the book and is what splitting groups on.  ``chapter`` is
+    finer, and exists so that a validation set can be held out without cutting
+    a chapter in half.  ``role`` records which side of the corpus the passage
+    came from: ``train`` books may be learned from, the single ``unseen`` book
+    per author may not.  Both have defaults so that passage files written
+    before the fields existed still load.
+    """
+
     author: str
     work: str
     passage_id: str
     text: str
     n_tokens: int
     n_sentences: int
+    chapter: str = ""
+    role: str = "train"
 
 
 # ---------------------------------------------------------------------------
@@ -74,7 +86,7 @@ def crawl_author(
     Wikisource community has marked proofread.  Works that hold their prose
     inline instead of transcluding a scan fall back to rendered HTML.
     """
-    meta = config.AUTHORS[key]
+    meta = config.WIKISOURCE_AUTHORS[key]
     works = client.author_works(meta["wikisource"])
     works = [w for w in works if not _TITLE_BLOCKLIST.search(w)]
     works.sort()
@@ -150,7 +162,7 @@ def build_raw_corpus(
     author_keys: list[str] | None = None, verbose: bool = True
 ) -> dict[str, dict[str, str]]:
     """Crawl every requested author and persist to ``data/raw/corpus_raw.json``."""
-    keys = author_keys or list(config.AUTHORS)
+    keys = author_keys or list(config.WIKISOURCE_AUTHORS)
     client = WikisourceClient(verbose=verbose)
     corpus: dict[str, dict[str, str]] = {}
     prov: dict[str, list[dict]] = {}
@@ -246,6 +258,82 @@ def build_passages(
             print(f"[{author}] {len(ps):>5} passages from {len(works)} works")
         all_passages += ps
     return all_passages
+
+
+def segment_books(
+    raw: dict[str, dict[str, dict[str, str]]] | None = None,
+    roles: dict[str, str] | None = None,
+    target: int = config.PASSAGE_TOKENS,
+    minimum: int = config.MIN_PASSAGE_TOKENS,
+    verbose: bool = True,
+) -> list[Passage]:
+    """Cut the chapter-nested corpus into passages, tagged with book and role.
+
+    ``raw`` is ``{author: {book: {chapter: text}}}`` as written by
+    ``scripts/01_build_corpus.py``; ``roles`` maps a book title to ``train`` or
+    ``unseen``.
+
+    Passages never cross a chapter boundary.  Chapters in these books are
+    whole short stories as often as they are chapters of a novel, so running a
+    passage across the join would blend two unrelated openings into one unit
+    and, worse, make the chapter-disjoint validation split unenforceable.
+
+    De-duplication is global rather than per author: the same anthology piece
+    can be reprinted in two different books, and the shingle filter is the
+    backstop for anything :mod:`overlap` did not already remove.
+    """
+    if raw is None:
+        raw = json.loads((config.RAW / "corpus_raw.json").read_text(encoding="utf-8"))
+    if roles is None:
+        from .ebangla import BOOKS
+        roles = {b.title_bn: b.role for bs in BOOKS.values() for b in bs}
+
+    seen_shingles: set[str] = set()
+    seen_exact: set[str] = set()
+    out: list[Passage] = []
+
+    for author in sorted(raw):
+        per_role: dict[str, int] = {}
+        for book in sorted(raw[author]):
+            role = roles.get(book, "train")
+            for chapter in sorted(raw[author][book]):
+                text = raw[author][book][chapter]
+                sentences = sentence_split(text.replace("\n", " "))
+                buf: list[str] = []
+                buf_tokens = 0
+                for sent in sentences:
+                    n = len(word_tokenize(sent))
+                    if n == 0:
+                        continue
+                    buf.append(sent)
+                    buf_tokens += n
+                    if buf_tokens < target:
+                        continue
+                    body = " ".join(buf)
+                    buf, buf_tokens = [], 0
+                    toks = word_tokenize(body)
+                    if len(toks) < minimum:
+                        continue
+                    digest = hashlib.sha1(body.encode("utf-8")).hexdigest()
+                    if digest in seen_exact:
+                        continue
+                    sh = _shingles(toks)
+                    if sh and sum(1 for s in sh if s in seen_shingles) / len(sh) > 0.5:
+                        continue
+                    seen_exact.add(digest)
+                    seen_shingles.update(sh)
+                    out.append(Passage(
+                        author=author, work=book, chapter=chapter,
+                        passage_id=f"{author}:{digest[:12]}", text=body,
+                        n_tokens=len(toks),
+                        n_sentences=len(sentence_split(body)),
+                        role=role,
+                    ))
+                    per_role[role] = per_role.get(role, 0) + 1
+        if verbose:
+            summary = "  ".join(f"{r}={n}" for r, n in sorted(per_role.items()))
+            print(f"[{author}] {summary}")
+    return out
 
 
 def balance(
